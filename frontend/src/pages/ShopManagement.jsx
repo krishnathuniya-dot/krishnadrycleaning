@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../css/ShopManagement.css";
 
-const API_URL = "http://localhost:2340";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 const MAX_IMAGES = 6;
 

@@ -6,7 +6,7 @@ import "../css/ShopPage.css";
 ========================================================== */
 
 const API_BASE_URL =
-  import.meta.env?.VITE_API_URL || "http://localhost:2340/api";
+  import.meta.env?.VITE_API_URL || "https://krishnadrycleaning.onrender.com/api";
 
 const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 

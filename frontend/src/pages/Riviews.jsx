@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../css/Allreview.css";
 
-const API_URL = "http://localhost:2340/api";
+const API_URL = "https://krishnadrycleaning.onrender.com/api";
 
 function Riviews() {
   const [backendReviews, setBackendReviews] = useState([]);

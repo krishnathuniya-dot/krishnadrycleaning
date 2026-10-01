@@ -60,7 +60,7 @@ function Settings() {
       }
 
       const response = await fetch(
-        "http://localhost:2340/api/settings",
+        "https://krishnadrycleaning.onrender.com/api/settings",
         {
           method: "GET",
           headers: {
@@ -145,7 +145,7 @@ function Settings() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "http://localhost:2340/api/change-password",
+        "https://krishnadrycleaning.onrender.com/api/change-password",
         {
           method: "PUT",
 
@@ -202,7 +202,7 @@ function Settings() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "http://localhost:2340/api/settings",
+        "https://krishnadrycleaning.onrender.com/api/settings",
         {
           method: "PUT",
 
@@ -330,7 +330,7 @@ function Settings() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "http://localhost:2340/api/profile",
+        "https://krishnadrycleaning.onrender.com/api/profile",
         {
           method: "DELETE",
 
@@ -379,7 +379,7 @@ function Settings() {
   const profileImage = user.profileImage
     ? user.profileImage.startsWith("http")
       ? user.profileImage
-      : `http://localhost:2340${user.profileImage}`
+      : `https://krishnadrycleaning.onrender.com${user.profileImage}`
     : "";
 
   // =====================================================

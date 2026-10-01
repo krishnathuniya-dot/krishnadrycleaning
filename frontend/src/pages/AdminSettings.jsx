@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../css/AdminSettings.css";
 
-const API_URL = "http://localhost:2340";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 // =====================================================
 // COUNTRY CODE -> FLAG EMOJI

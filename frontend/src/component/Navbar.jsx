@@ -13,7 +13,7 @@ import {
 
 import "../css/navbar.css";
 
-const API_URL = "http://localhost:2340";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 // =====================================================
 // GOOGLE CLIENT ID

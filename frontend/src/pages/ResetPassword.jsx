@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "../css/ResetPassword.css";
 
-const API_URL = "http://localhost:2340/api";
+const API_URL = "https://krishnadrycleaning.onrender.com/api";
 
 function ResetPassword() {
   const { token } = useParams();

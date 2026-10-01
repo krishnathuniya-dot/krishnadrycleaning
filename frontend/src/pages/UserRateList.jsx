@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../css/UserRateList.css";
 
-const API_URL = "http://localhost:2340";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 // =====================================================
 // CONTACT NUMBERS

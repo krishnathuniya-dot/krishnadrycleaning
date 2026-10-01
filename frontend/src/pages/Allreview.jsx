@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../css/Allreview.css";
 import Footer from "../component/Footer";
 
-const API_URL = "http://localhost:2340";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 function Allreview() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../css/ForgotPassword.css";
 
-const API_URL = "http://localhost:2340/api";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");

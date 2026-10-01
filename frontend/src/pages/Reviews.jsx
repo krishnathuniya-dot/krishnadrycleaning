@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../css/AdminReviews.css";
 
-const API_URL = "http://localhost:2340";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 function Reviews() {
   // =====================================================

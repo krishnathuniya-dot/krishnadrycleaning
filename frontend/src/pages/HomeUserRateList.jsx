@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../css/HomeUserRateList.css";
 import Allreview from "./Allreview";
 
-const API_URL = "http://localhost:2340";
+const API_URL = "https://krishnadrycleaning.onrender.com";
 
 // =====================================================
 // TABS
