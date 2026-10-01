@@ -1,0 +1,301 @@
+/* ============================================
+   COMPLETE PROFILE PAGE
+   ============================================ */
+
+.complete-profile-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    #f0f4f8 0%,
+    #e2eaf3 50%,
+    #d9e4f0 100%
+  );
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.complete-profile-page::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.08) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.complete-profile-page::after {
+  content: "";
+  position: absolute;
+  bottom: -40%;
+  left: -15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(30, 64, 175, 0.06) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ============================================
+   CARD
+   ============================================ */
+
+.complete-profile-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 20px 60px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(15, 23, 42, 0.04);
+  padding: 48px 42px 42px;
+  max-width: 480px;
+  width: 100%;
+  z-index: 1;
+  overflow: hidden;
+  animation: cardSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.complete-profile-bg-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    #1e40af 0%,
+    #3b82f6 50%,
+    #60a5fa 100%
+  );
+}
+
+.complete-profile-content {
+  position: relative;
+  text-align: center;
+}
+
+/* ============================================
+   LOGO
+   ============================================ */
+
+.complete-profile-logo {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(
+    135deg,
+    #1e40af 0%,
+    #3b82f6 100%
+  );
+  color: #ffffff;
+  font-size: 34px;
+  font-weight: 800;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 26px;
+  box-shadow:
+    0 8px 24px rgba(30, 64, 175, 0.25),
+    0 0 0 6px rgba(59, 130, 246, 0.08);
+  letter-spacing: -1px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.complete-profile-header {
+  margin-bottom: 30px;
+}
+
+.complete-profile-step {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+  text-transform: uppercase;
+}
+
+.complete-profile-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+
+.complete-profile-header p {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   FORM
+   ============================================ */
+
+.complete-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 8px;
+}
+
+.complete-profile-form .professional-input-group {
+  text-align: left;
+}
+
+.complete-profile-form .professional-input-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+}
+
+.complete-profile-form .professional-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0 16px;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.complete-profile-form .professional-input-wrapper:hover {
+  border-color: #cbd5e1;
+}
+
+.complete-profile-form
+  .professional-input-wrapper:focus-within {
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(59, 130, 246, 0.1),
+    0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.complete-profile-form .input-icon {
+  font-size: 18px;
+  margin-right: 10px;
+  opacity: 0.85;
+}
+
+.complete-profile-form .country-code {
+  font-weight: 700;
+  color: #334155;
+  margin-right: 10px;
+  padding-right: 10px;
+  border-right: 1.5px solid #cbd5e1;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+.complete-profile-form input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 15px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+.complete-profile-form input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.complete-profile-form .password-hint {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 8px;
+  line-height: 1.5;
+  padding-left: 2px;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.complete-profile-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.complete-profile-footer span {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 520px) {
+  .complete-profile-card {
+    padding: 36px 24px 30px;
+    border-radius: 20px;
+  }
+
+  .complete-profile-logo {
+    width: 64px;
+    height: 64px;
+    font-size: 30px;
+    border-radius: 18px;
+  }
+
+  .complete-profile-header h1 {
+    font-size: 24px;
+  }
+
+  .complete-profile-header p {
+    font-size: 13px;
+  }
+}

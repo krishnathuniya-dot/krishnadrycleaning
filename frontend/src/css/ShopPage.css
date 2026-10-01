@@ -1,0 +1,1946 @@
+/* ==========================================================
+   shopdetails.css
+   KRISHNA DRY CLEANING — Premium Shop Details UI
+   Responsive • Modern • Clean • Smooth
+   ========================================================== */
+
+:root {
+  --primary: #0056b3;
+  --primary-dark: #003366;
+  --primary-light: #e8f0fb;
+
+  --accent: #00a896;
+  --accent-2: #25d366;
+  --gold: #f4b41a;
+
+  --text-dark: #1e293b;
+  --text-mid: #475569;
+  --text-soft: #64748b;
+
+  --border-soft: #e2e8f0;
+  --bg-soft: #f8fafc;
+
+  --primary-glow: rgba(0, 86, 179, 0.22);
+  --accent-glow: rgba(0, 168, 150, 0.25);
+  --success-glow: rgba(37, 211, 102, 0.35);
+
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
+  --shadow-xl: 0 24px 60px rgba(15, 23, 42, 0.18);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+
+  --transition: all 0.3s ease;
+
+  --gradient-primary: linear-gradient(
+    135deg,
+    #0056b3,
+    #003366
+  );
+
+  --gradient-brand: linear-gradient(
+    135deg,
+    #0056b3,
+    #00a896,
+    #25d366
+  );
+}
+
+/* ==========================================================
+   GLOBAL
+   ========================================================== */
+
+.shop-page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  padding-bottom: 70px;
+
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(0, 86, 179, 0.05),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(0, 168, 150, 0.05),
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      #f8fafc 0%,
+      #eef2f7 100%
+    );
+
+  color: var(--text-dark);
+
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.shop-page-wrapper *,
+.shop-page-wrapper *::before,
+.shop-page-wrapper *::after {
+  box-sizing: border-box;
+}
+
+/* ==========================================================
+   HERO
+   ========================================================== */
+
+.shop-hero {
+  position: relative;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0056b3 0%,
+      #003366 55%,
+      #001f3f 100%
+    );
+
+  color: #fff;
+
+  padding: 70px 0 100px;
+
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Background glow */
+
+.shop-hero::before,
+.shop-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 350px;
+  height: 350px;
+
+  border-radius: 50%;
+
+  filter: blur(80px);
+
+  opacity: 0.35;
+
+  pointer-events: none;
+
+  z-index: -1;
+}
+
+.shop-hero::before {
+  background: #00a896;
+
+  top: -150px;
+  left: -100px;
+
+  animation: floatOrb 12s ease-in-out infinite;
+}
+
+.shop-hero::after {
+  background: #25d366;
+
+  bottom: -150px;
+  right: -100px;
+
+  animation: floatOrb 15s ease-in-out infinite reverse;
+}
+
+@keyframes floatOrb {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(30px, -25px);
+  }
+}
+
+/* ==========================================================
+   HERO CONTENT
+   ========================================================== */
+
+.shop-hero-content {
+  position: relative;
+
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 0 24px;
+
+  z-index: 2;
+
+  animation: heroFadeUp 0.7s ease both;
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================
+   STATUS
+   ========================================================== */
+
+.shop-status-badge {
+  display: inline-flex;
+
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 15px;
+
+  margin-bottom: 18px;
+
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 0.3px;
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.12);
+}
+
+.shop-status-badge.status-open {
+  background: rgba(37, 211, 102, 0.18);
+
+  border-color: rgba(37, 211, 102, 0.4);
+
+  box-shadow:
+    0 5px 20px rgba(37, 211, 102, 0.2);
+}
+
+.shop-status-badge.status-closed {
+  background: rgba(239, 68, 68, 0.18);
+
+  border-color: rgba(239, 68, 68, 0.4);
+
+  box-shadow:
+    0 5px 20px rgba(239, 68, 68, 0.2);
+}
+
+/* ==========================================================
+   TITLE
+   ========================================================== */
+
+.shop-title-box h1 {
+  margin: 0 0 12px;
+
+  font-size: clamp(28px, 5vw, 46px);
+
+  line-height: 1.15;
+
+  font-weight: 800;
+
+  letter-spacing: -0.5px;
+
+  color: #fff;
+
+  text-shadow:
+    0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+.shop-title-box h1.gradient-text {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #f4b41a,
+      #ffffff
+    );
+
+  background-size: 200% 200%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  background-clip: text;
+
+  animation: gradientText 5s ease infinite;
+}
+
+@keyframes gradientText {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ==========================================================
+   TAGLINE
+   ========================================================== */
+
+.shop-tagline {
+  position: relative;
+
+  display: inline-block;
+
+  margin: 0 0 16px;
+
+  color: var(--gold);
+
+  font-size: 18px;
+  font-weight: 700;
+
+  letter-spacing: 0.3px;
+}
+
+.shop-tagline::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -5px;
+
+  width: 55px;
+  height: 2px;
+
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--gold),
+      transparent
+    );
+}
+
+/* ==========================================================
+   DESCRIPTION
+   ========================================================== */
+
+.shop-desc {
+  max-width: 780px;
+
+  margin: 0 0 28px;
+
+  font-size: 15.5px;
+
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ==========================================================
+   BUTTONS
+   ========================================================== */
+
+.shop-cta-row {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 13px;
+}
+
+.shop-btn {
+  position: relative;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 48px;
+
+  padding: 12px 22px;
+
+  border: none;
+  border-radius: 12px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.shop-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 100%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      100deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+
+  transition: left 0.6s ease;
+}
+
+.shop-btn:hover::before {
+  left: 120%;
+}
+
+/* Call */
+
+.call-btn {
+  color: var(--primary);
+
+  background: #fff;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.call-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* WhatsApp */
+
+.wa-btn,
+.whatsapp-btn {
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #25d366,
+      #128c7e
+    );
+
+  box-shadow:
+    0 8px 24px rgba(37, 211, 102, 0.35);
+}
+
+.wa-btn:hover,
+.whatsapp-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 14px 35px rgba(37, 211, 102, 0.45);
+}
+
+/* ==========================================================
+   EMAIL
+   ========================================================== */
+
+.shop-email-line {
+  margin-top: 16px;
+
+  font-size: 14px;
+
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.email-link {
+  color: var(--gold);
+
+  text-decoration: none;
+
+  border-bottom: 1px dashed var(--gold);
+
+  transition: var(--transition);
+}
+
+.email-link:hover {
+  color: #fff;
+
+  border-bottom-color: #fff;
+}
+
+/* ==========================================================
+   MAIN CONTENT
+   ========================================================== */
+
+.shop-main-content {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+  max-width: 1200px;
+
+  margin: -55px auto 0;
+
+  padding: 0 24px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.9fr)
+    minmax(300px, 1fr);
+
+  gap: 28px;
+
+  animation:
+    contentFadeUp 0.7s 0.1s ease both;
+}
+
+@keyframes contentFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================
+   CARD
+   ========================================================== */
+
+.shop-card {
+  position: relative;
+
+  width: 100%;
+
+  padding: 26px;
+
+  margin-bottom: 26px;
+
+  background: #fff;
+
+  border:
+    1px solid rgba(226, 232, 240, 0.8);
+
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-md);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Top line */
+
+.shop-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  background: var(--gradient-brand);
+}
+
+.shop-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow: var(--shadow-lg);
+
+  border-color:
+    rgba(0, 86, 179, 0.15);
+}
+
+/* ==========================================================
+   CARD HEADING
+   ========================================================== */
+
+.shop-card h2 {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 0 0 18px;
+
+  padding-bottom: 12px;
+
+  color: var(--text-dark);
+
+  font-size: 19px;
+
+  font-weight: 800;
+
+  border-bottom:
+    2px solid var(--bg-soft);
+}
+
+.shop-card h2::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -2px;
+
+  width: 55px;
+  height: 2px;
+
+  border-radius: 5px;
+
+  background: var(--gradient-brand);
+}
+
+/* ==========================================================
+   VIDEO
+   ========================================================== */
+
+.video-card {
+  overflow: hidden;
+}
+
+.video-container {
+  position: relative;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  border-radius: var(--radius-md);
+
+  background: #000;
+
+  box-shadow: var(--shadow-md);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.video-container video {
+  display: block;
+
+  width: 100%;
+
+  height: auto;
+
+  max-height: 420px;
+
+  object-fit: cover;
+
+  background: #000;
+
+  border-radius: var(--radius-md);
+
+  transition: transform 0.3s ease;
+}
+
+.video-container:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.2);
+}
+
+.video-container:hover video {
+  transform: scale(1.01);
+}
+
+/* ==========================================================
+   GALLERY
+   ========================================================== */
+
+.gallery-main-view {
+  position: relative;
+
+  width: 100%;
+
+  height: 360px;
+
+  margin-bottom: 14px;
+
+  overflow: hidden;
+
+  border-radius: var(--radius-md);
+
+  background: var(--bg-soft);
+
+  box-shadow: var(--shadow-md);
+}
+
+.gallery-main-view img,
+.shop-photo {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.4s ease;
+}
+
+.gallery-main-view:hover img {
+  transform: scale(1.035);
+}
+
+/* Important fix:
+   container must be position relative */
+
+.shop-photo-container {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================
+   GALLERY THUMBNAILS
+   ========================================================== */
+
+.gallery-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 10px;
+
+  width: 100%;
+}
+
+.gallery-img-box {
+  position: relative;
+
+  width: 100%;
+  height: 82px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  border: 2px solid transparent;
+
+  background: var(--bg-soft);
+
+  cursor: pointer;
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.gallery-img-box img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition: transform 0.3s ease;
+}
+
+.gallery-img-box:hover {
+  transform: translateY(-3px);
+
+  border-color: var(--primary);
+
+  box-shadow:
+    0 8px 20px rgba(0, 86, 179, 0.18);
+}
+
+.gallery-img-box:hover img {
+  transform: scale(1.08);
+}
+
+/* Active */
+
+.gallery-img-box.active-thumb {
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px var(--accent-glow),
+    0 8px 18px rgba(0, 168, 150, 0.22);
+
+  transform: translateY(-2px);
+}
+
+.gallery-img-box.active-thumb::after {
+  content: "✓";
+
+  position: absolute;
+
+  top: 5px;
+  right: 5px;
+
+  width: 20px;
+  height: 20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--accent);
+
+  color: #fff;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  box-shadow:
+    0 2px 7px rgba(0, 168, 150, 0.35);
+}
+
+/* ==========================================================
+   SERVICES
+   ========================================================== */
+
+.services-grid-box {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+.service-badge-item {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 9px 16px;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef4fb,
+      #e8f0fb
+    );
+
+  border:
+    1px solid rgba(0, 86, 179, 0.12);
+
+  color: var(--primary);
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.service-badge-item:hover {
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0056b3,
+      #00a896
+    );
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 8px 20px rgba(0, 86, 179, 0.22);
+}
+
+/* ==========================================================
+   ADDRESS
+   ========================================================== */
+
+.address-text {
+  margin: 0 0 16px;
+
+  padding: 13px 15px;
+
+  color: var(--text-mid);
+
+  font-size: 15px;
+
+  line-height: 1.65;
+
+  font-weight: 500;
+
+  background: var(--bg-soft);
+
+  border-radius: var(--radius-sm);
+
+  border-left:
+    3px solid var(--primary);
+}
+
+/* ==========================================================
+   MAP
+   ========================================================== */
+
+.map-preview-box {
+  width: 100%;
+
+  margin-bottom: 16px;
+
+  overflow: hidden;
+
+  border-radius: var(--radius-md);
+
+  background: #e5e7eb;
+
+  box-shadow: var(--shadow-md);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.map-preview-box iframe {
+  display: block;
+
+  width: 100%;
+
+  min-height: 260px;
+
+  border: 0;
+
+  border-radius: var(--radius-md);
+}
+
+.map-preview-box:hover {
+  transform: translateY(-3px);
+
+  box-shadow: var(--shadow-lg);
+}
+
+/* ==========================================================
+   DIRECTION BUTTON
+   ========================================================== */
+
+.map-direction-btn {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  width: 100%;
+
+  min-height: 48px;
+
+  padding: 12px 18px;
+
+  border-radius: var(--radius-md);
+
+  background: var(--gradient-primary);
+
+  color: #fff;
+
+  font-size: 14.5px;
+
+  font-weight: 700;
+
+  text-align: center;
+
+  text-decoration: none;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 7px 20px var(--primary-glow);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.map-direction-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 12px 28px rgba(0, 86, 179, 0.32);
+}
+
+/* ==========================================================
+   HOURS
+   ========================================================== */
+
+.hours-list {
+  list-style: none;
+
+  margin: 0;
+  padding: 0;
+}
+
+.hours-list li {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding: 11px 12px;
+
+  border-bottom:
+    1px solid var(--border-soft);
+
+  border-radius: 8px;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.hours-list li:last-child {
+  border-bottom: none;
+}
+
+.hours-list li:hover {
+  background:
+    linear-gradient(
+      90deg,
+      var(--primary-light),
+      transparent
+    );
+
+  transform: translateX(3px);
+}
+
+.day-name {
+  color: var(--text-mid);
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.time-val {
+  padding: 4px 9px;
+
+  border-radius: 8px;
+
+  background:
+    rgba(0, 168, 150, 0.1);
+
+  color: var(--accent);
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+/* ==========================================================
+   CONTACT
+   ========================================================== */
+
+.contact-card {
+  background:
+    linear-gradient(
+      135deg,
+      #fff,
+      #f8fafc
+    );
+}
+
+.contact-row {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  width: 100%;
+
+  min-height: 64px;
+
+  margin-bottom: 10px;
+
+  padding: 11px 14px;
+
+  border-radius: var(--radius-md);
+
+  border:
+    1px solid var(--border-soft);
+
+  background: var(--bg-soft);
+
+  color: var(--text-dark);
+
+  font-size: 14.5px;
+
+  font-weight: 600;
+
+  text-decoration: none;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.contact-row:hover {
+  transform: translateX(5px);
+
+  background: #fff;
+
+  border-color:
+    rgba(0, 86, 179, 0.2);
+
+  color: var(--primary);
+
+  box-shadow:
+    0 7px 18px rgba(0, 86, 179, 0.1);
+}
+
+.contact-icon {
+  flex-shrink: 0;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary-light),
+      #dbeafe
+    );
+
+  font-size: 17px;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.contact-row:hover .contact-icon {
+  transform: scale(1.08);
+
+  background: var(--gradient-primary);
+
+  color: #fff;
+}
+
+.whatsapp-row .contact-icon {
+  background:
+    linear-gradient(
+      135deg,
+      #d1fae5,
+      #a7f3d0
+    );
+}
+
+.whatsapp-row:hover {
+  color: #128c7e;
+
+  border-color:
+    rgba(37, 211, 102, 0.3);
+
+  box-shadow:
+    0 8px 20px rgba(37, 211, 102, 0.15);
+}
+
+.whatsapp-row:hover .contact-icon {
+  background:
+    linear-gradient(
+      135deg,
+      #25d366,
+      #128c7e
+    );
+}
+
+/* ==========================================================
+   FLOATING WHATSAPP
+   ========================================================== */
+
+.whatsapp-float {
+  position: fixed;
+
+  right: 25px;
+  bottom: 25px;
+
+  z-index: 999;
+
+  width: 60px;
+  height: 60px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #25d366,
+      #128c7e
+    );
+
+  color: #fff;
+
+  font-size: 25px;
+
+  text-decoration: none;
+
+  box-shadow:
+    0 8px 25px rgba(37, 211, 102, 0.4);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+
+  box-shadow:
+    0 14px 35px rgba(37, 211, 102, 0.55);
+}
+
+/* ==========================================================
+   SKELETON
+   ========================================================== */
+
+.skeleton {
+  border-radius: var(--radius-sm);
+
+  background:
+    linear-gradient(
+      90deg,
+      #f1f5f9 25%,
+      #e2e8f0 50%,
+      #f1f5f9 75%
+    );
+
+  background-size: 200% 100%;
+
+  animation:
+    shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================================
+   ERROR
+   ========================================================== */
+
+.shop-error-state {
+  min-height: 60vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 14px;
+
+  padding: 60px 24px;
+
+  text-align: center;
+}
+
+.shop-error-state .error-icon {
+  font-size: 60px;
+}
+
+.shop-error-state h2 {
+  margin: 0;
+
+  color: var(--text-dark);
+
+  font-size: 24px;
+}
+
+.shop-error-state p {
+  max-width: 420px;
+
+  margin: 0;
+
+  color: var(--text-soft);
+
+  line-height: 1.6;
+}
+
+.retry-btn {
+  margin-top: 10px;
+
+  padding: 12px 28px;
+
+  border: none;
+
+  border-radius: var(--radius-md);
+
+  background: var(--gradient-primary);
+
+  color: #fff;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 22px var(--primary-glow);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.retry-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 12px 28px rgba(0, 86, 179, 0.35);
+}
+
+/* ==========================================================
+   TABLET
+   ========================================================== */
+
+@media (max-width: 900px) {
+
+  .shop-hero {
+    padding: 55px 0 80px;
+  }
+
+  .shop-main-content {
+    grid-template-columns: 1fr;
+
+    margin-top: -40px;
+
+    gap: 20px;
+  }
+
+  .gallery-main-view {
+    height: 320px;
+  }
+
+  .shop-title-box h1 {
+    font-size: 32px;
+  }
+
+}
+
+/* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width: 560px) {
+
+  .shop-page-wrapper {
+    padding-bottom: 50px;
+  }
+
+  .shop-hero {
+    padding: 40px 0 70px;
+  }
+
+  .shop-hero-content,
+  .shop-main-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .shop-title-box h1 {
+    font-size: 25px;
+
+    line-height: 1.2;
+  }
+
+  .shop-tagline {
+    font-size: 15px;
+  }
+
+  .shop-desc {
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    margin-bottom: 22px;
+  }
+
+  /* Buttons */
+
+  .shop-cta-row {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    width: 100%;
+  }
+
+  .shop-btn {
+    width: 100%;
+
+    min-height: 48px;
+  }
+
+  /* Main */
+
+  .shop-main-content {
+    margin-top: -30px;
+
+    gap: 16px;
+  }
+
+  /* Cards */
+
+  .shop-card {
+    padding: 18px;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+  }
+
+  .shop-card h2 {
+    font-size: 17px;
+
+    margin-bottom: 15px;
+  }
+
+  /* Gallery */
+
+  .gallery-main-view {
+    height: 230px;
+
+    border-radius: 12px;
+  }
+
+  .gallery-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+
+    gap: 7px;
+  }
+
+  .gallery-img-box {
+    height: 70px;
+  }
+
+  /* Video */
+
+  .video-container video {
+    width: 100%;
+
+    max-height: 240px;
+
+    object-fit: cover;
+  }
+
+  /* Map */
+
+  .map-preview-box iframe {
+    min-height: 220px;
+  }
+
+  /* Services */
+
+  .service-badge-item {
+    padding: 8px 13px;
+
+    font-size: 13px;
+  }
+
+  /* Hours */
+
+  .hours-list li {
+    padding: 9px 8px;
+
+    font-size: 13px;
+  }
+
+  .day-name,
+  .time-val {
+    font-size: 12px;
+  }
+
+  /* Contact */
+
+  .contact-row {
+    min-height: 60px;
+
+    padding: 10px 12px;
+
+    font-size: 13.5px;
+  }
+
+  .contact-icon {
+    width: 35px;
+    height: 35px;
+
+    font-size: 15px;
+  }
+
+  /* WhatsApp */
+
+  .whatsapp-float {
+    right: 18px;
+    bottom: 18px;
+
+    width: 54px;
+    height: 54px;
+
+    font-size: 22px;
+  }
+}
+
+/* ==========================================================
+   VERY SMALL MOBILE
+   ========================================================== */
+
+@media (max-width: 380px) {
+
+  .shop-hero {
+    padding-top: 35px;
+  }
+
+  .shop-title-box h1 {
+    font-size: 22px;
+  }
+
+  .shop-card {
+    padding: 15px;
+  }
+
+  .gallery-main-view {
+    height: 200px;
+  }
+
+  .gallery-img-box {
+    height: 62px;
+  }
+
+  .shop-status-badge {
+    font-size: 12px;
+
+    padding: 6px 12px;
+  }
+}
+
+/* ==========================================================
+   ACCESSIBILITY
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+
+    scroll-behavior: auto !important;
+  }
+}
+/* ==========================================================
+   FIXED IMAGE SIZES
+========================================================== */
+
+.gallery-main-view {
+  width: 100%;
+  height: 380px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  position: relative;
+  background: #f1f5f9;
+}
+
+.gallery-main-view .shop-photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.gallery-img-box {
+  width: 100%;
+  height: 90px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #f1f5f9;
+}
+
+.gallery-img-box img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ==========================================================
+   OPENING HOURS — CLEAN UI
+========================================================== */
+
+.hours-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hours-list li {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.hours-list li:last-child {
+  border-bottom: none;
+}
+
+.day-name {
+  min-width: 100px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.time-val {
+  text-align: right;
+  color: #008f7a;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(0, 168, 150, 0.1);
+  padding: 6px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.time-val.closed-time {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 560px) {
+
+  .gallery-main-view {
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .gallery-img-box {
+    height: 72px;
+  }
+
+  .hours-list li {
+    min-height: 46px;
+    padding: 8px 6px;
+  }
+
+  .day-name {
+    min-width: 82px;
+    font-size: 13px;
+  }
+
+  .time-val {
+    font-size: 11.5px;
+    padding: 5px 7px;
+  }
+}
+/* ==========================================================
+   SHOP MAP
+========================================================== */
+
+.shop-map-wrapper {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e8edf3;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================
+   REAL SHOP PHOTO
+========================================================== */
+
+.map-shop-photo {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #eef2f6;
+}
+
+.map-shop-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.map-shop-photo:hover img {
+  transform: scale(1.04);
+}
+
+/* ==========================================================
+   PHOTO OVERLAY
+========================================================== */
+
+.map-shop-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 55px 20px 18px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.82),
+    rgba(0, 0, 0, 0.45),
+    transparent
+  );
+}
+
+.map-shop-title {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 5px;
+}
+
+.map-shop-location {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+/* ==========================================================
+   GOOGLE MAP
+========================================================== */
+
+.map-preview-box {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  background: #eef2f6;
+}
+
+.map-preview-box iframe {
+  width: 100%;
+  height: 300px;
+  border: 0;
+  display: block;
+}
+
+/* ==========================================================
+   MAP BUTTONS
+========================================================== */
+
+.map-buttons-row {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  flex-wrap: wrap;
+}
+
+.map-direction-btn,
+.map-open-btn {
+  flex: 1;
+  min-width: 180px;
+
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.map-direction-btn {
+  background: #0056b3;
+  color: #ffffff;
+}
+
+.map-direction-btn:hover {
+  background: #00418a;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 86, 179, 0.25);
+}
+
+.map-open-btn {
+  background: #f1f5f9;
+  color: #12324a;
+  border: 1px solid #dbe4ec;
+}
+
+.map-open-btn:hover {
+  background: #e7edf3;
+  color: #12324a;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 600px) {
+
+  .map-shop-photo {
+    height: 190px;
+  }
+
+  .map-shop-title {
+    font-size: 18px;
+  }
+
+  .map-shop-location {
+    font-size: 13px;
+  }
+
+  .map-preview-box,
+  .map-preview-box iframe {
+    height: 270px;
+  }
+
+  .map-buttons-row {
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .map-direction-btn,
+  .map-open-btn {
+    width: 100%;
+    min-width: 100%;
+  }
+
+}

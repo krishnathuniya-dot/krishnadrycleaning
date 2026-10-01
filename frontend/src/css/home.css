@@ -1,0 +1,238 @@
+/* General Main & Theme Setup */
+.krishna-main {
+  background-color: #0d1521;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Hero Section Layout */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 6% 60px 6%;
+  gap: 50px;
+}
+
+/* Left Content Styles */
+.hero-content {
+  flex: 1.1;
+  max-width: 620px;
+}
+
+.trusted-text {
+  font-size: 1.25rem;
+  color: #d4af37;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.india-badge {
+  display: inline-block;
+  color: #d4af37;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.hero-desc {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 35px;
+}
+
+/* Buttons */
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.pickup-btn {
+  background-color: #d4af37;
+  color: #0d1521;
+  padding: 15px 30px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.pickup-btn:hover {
+  background-color: #e6c555;
+  transform: translateY(-2px);
+}
+
+.whatsapp-btn {
+  background-color: transparent;
+  color: #ffffff;
+  border: 2px solid #d4af37;
+  padding: 13px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.whatsapp-btn:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+/* Right Visual / Slider Section */
+.hero-visual {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 650px;
+}
+
+.main-display-box {
+  width: 100%;
+  height: 380px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  background-color: #162032;
+}
+
+.main-active-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.8s ease-in-out;
+}
+
+/* Free Home Delivery Badge */
+.delivery-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #d4af37 0%, #aa820a 100%);
+  color: #0d1521;
+  padding: 12px 18px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.delivery-badge strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.delivery-badge span {
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+}
+
+/* Thumbnails Row */
+.thumbnails-row {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.thumb-box {
+  flex: 1;
+  height: 85px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.6;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-box:hover {
+  opacity: 0.9;
+}
+
+.thumb-box.active-thumb {
+  opacity: 1;
+  border-color: #d4af37;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+}
+
+/* Floating WhatsApp Button */
+.floating-whatsapp {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #25d366;
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+  z-index: 1000;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.floating-whatsapp:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 4% 40px 4%;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .main-display-box {
+    height: 280px;
+  }
+
+  .thumbnails-row {
+    gap: 8px;
+  }
+  
+  .thumb-box {
+    height: 60px;
+  }
+}

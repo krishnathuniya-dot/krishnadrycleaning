@@ -1,0 +1,992 @@
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+.steam-page {
+  width: 100%;
+  overflow: hidden;
+  background: #f7f6f2;
+  color: #171717;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+.steam-container {
+  width: min(1180px, 92%);
+  margin: auto;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.steam-hero {
+  min-height: 760px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: white;
+}
+
+.steam-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.03);
+}
+
+.steam-hero-dark {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 10, 12, .91) 0%,
+      rgba(8, 10, 12, .73) 45%,
+      rgba(8, 10, 12, .20) 100%
+    );
+}
+
+.steam-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  padding: 120px 0 100px;
+}
+
+.steam-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #d7b77b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 25px;
+}
+
+.steam-eyebrow span {
+  width: 35px;
+  height: 1px;
+  background: #d7b77b;
+}
+
+.steam-hero h1 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: clamp(52px, 7vw, 88px);
+  line-height: .98;
+  font-weight: 500;
+  letter-spacing: -3px;
+}
+
+.steam-hero h1 em {
+  color: #d7b77b;
+  font-style: italic;
+}
+
+.steam-hero-content > p {
+  max-width: 610px;
+  margin: 32px 0;
+  color: rgba(255,255,255,.78);
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   HERO BUTTONS
+========================================================= */
+
+.steam-hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.steam-call-btn,
+.steam-whatsapp-btn {
+  min-width: 215px;
+  padding: 15px 18px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: .3s ease;
+}
+
+.steam-call-btn {
+  border: 0;
+  background: #d7b77b;
+  color: #171717;
+}
+
+.steam-whatsapp-btn {
+  border: 1px solid rgba(255,255,255,.35);
+  color: white;
+  background: rgba(255,255,255,.07);
+  backdrop-filter: blur(10px);
+}
+
+.steam-call-btn:hover,
+.steam-whatsapp-btn:hover {
+  transform: translateY(-4px);
+}
+
+.steam-call-btn:hover {
+  background: #ead09d;
+}
+
+.steam-whatsapp-btn:hover {
+  background: rgba(255,255,255,.16);
+}
+
+.action-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0,0,0,.1);
+  font-size: 17px;
+}
+
+.steam-whatsapp-btn .action-icon {
+  background: rgba(255,255,255,.12);
+}
+
+.steam-call-btn span:nth-child(2),
+.steam-whatsapp-btn span:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.steam-call-btn small,
+.steam-whatsapp-btn small {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  opacity: .7;
+}
+
+.steam-call-btn b,
+.steam-whatsapp-btn b {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+
+/* =========================================================
+   HERO INFO
+========================================================= */
+
+.steam-hero-info {
+  display: flex;
+  gap: 35px;
+  margin-top: 65px;
+}
+
+.steam-hero-info div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.steam-hero-info strong {
+  color: #d7b77b;
+  font-family: Georgia, serif;
+  font-size: 18px;
+}
+
+.steam-hero-info span {
+  color: rgba(255,255,255,.7);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.steam-scroll {
+  position: absolute;
+  bottom: 35px;
+  right: 5%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: rgba(255,255,255,.55);
+  font-size: 9px;
+  letter-spacing: 2px;
+  writing-mode: vertical-rl;
+}
+
+.steam-scroll i {
+  color: #d7b77b;
+  font-style: normal;
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+.steam-intro {
+  padding: 125px 0;
+  background: #f7f6f2;
+}
+
+.steam-intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
+  align-items: center;
+}
+
+.steam-intro-images {
+  height: 620px;
+  position: relative;
+}
+
+.steam-image-main {
+  width: 75%;
+  height: 510px;
+  overflow: hidden;
+}
+
+.steam-image-main img,
+.steam-image-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: .7s ease;
+}
+
+.steam-image-main:hover img,
+.steam-image-small:hover img {
+  transform: scale(1.05);
+}
+
+.steam-image-small {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 48%;
+  height: 260px;
+  padding: 8px;
+  background: #f7f6f2;
+}
+
+.steam-image-badge {
+  position: absolute;
+  left: 40px;
+  bottom: 40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #171717;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 4px solid #d7b77b;
+}
+
+.steam-image-badge strong {
+  color: #d7b77b;
+  font-family: Georgia, serif;
+  font-size: 27px;
+}
+
+.steam-image-badge span {
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.steam-section-label {
+  color: #9d7c42;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.steam-intro-content h2,
+.steam-heading h2 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 62px);
+  line-height: 1.05;
+  margin: 18px 0 25px;
+  letter-spacing: -2px;
+}
+
+.steam-intro-content h2 span,
+.steam-heading h2 span {
+  color: #9d7c42;
+  font-style: italic;
+}
+
+.steam-intro-content > p {
+  color: #6d6d6d;
+  font-size: 15px;
+  line-height: 1.9;
+  margin-bottom: 18px;
+}
+
+.steam-check-list {
+  margin: 32px 0;
+}
+
+.steam-check-list > div {
+  display: flex;
+  gap: 15px;
+  padding: 14px 0;
+  border-bottom: 1px solid #ddd9d0;
+}
+
+.steam-check-list > div > span {
+  width: 25px;
+  height: 25px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #171717;
+  color: #d7b77b;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+
+.steam-check-list p {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.steam-check-list strong {
+  color: #222;
+  margin-bottom: 3px;
+  font-size: 13px;
+}
+
+.steam-text-link {
+  color: #171717;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13px;
+  border-bottom: 1px solid #171717;
+  padding-bottom: 5px;
+}
+
+.steam-text-link span {
+  margin-left: 12px;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.steam-stats {
+  background: #171717;
+  color: white;
+  padding: 48px 0;
+}
+
+.steam-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.steam-stat {
+  padding: 10px 30px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,.15);
+}
+
+.steam-stat:last-child {
+  border-right: 0;
+}
+
+.steam-stat strong {
+  display: block;
+  color: #d7b77b;
+  font-family: Georgia, serif;
+  font-size: 38px;
+  font-weight: 400;
+}
+
+.steam-stat span {
+  display: block;
+  margin-top: 5px;
+  color: rgba(255,255,255,.55);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+
+/* =========================================================
+   BENEFITS
+========================================================= */
+
+.steam-benefits {
+  padding: 120px 0;
+  background: #eeece6;
+}
+
+.steam-heading {
+  max-width: 650px;
+  margin-bottom: 60px;
+}
+
+.steam-heading p {
+  color: #737373;
+  max-width: 550px;
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+.steam-benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.steam-benefit-card {
+  min-height: 300px;
+  padding: 30px;
+  background: #f8f7f3;
+  border: 1px solid #ddd9d0;
+  position: relative;
+  transition: .3s ease;
+}
+
+.steam-benefit-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.08);
+}
+
+.benefit-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.benefit-top span {
+  color: #9d7c42;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.benefit-top b {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #171717;
+  color: #d7b77b;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.steam-benefit-card h3 {
+  margin-top: 55px;
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.steam-benefit-card p {
+  color: #777;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.benefit-line {
+  position: absolute;
+  left: 30px;
+  bottom: 25px;
+  width: 35px;
+  height: 2px;
+  background: #d7b77b;
+}
+
+
+/* =========================================================
+   FEATURE
+========================================================= */
+
+.steam-feature {
+  padding: 120px 0;
+  background: #f7f6f2;
+}
+
+.steam-feature-box {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  min-height: 570px;
+  background: #171717;
+  color: white;
+}
+
+.steam-feature-image {
+  overflow: hidden;
+}
+
+.steam-feature-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: .7s ease;
+}
+
+.steam-feature-box:hover .steam-feature-image img {
+  transform: scale(1.04);
+}
+
+.steam-feature-content {
+  padding: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.steam-feature-content h2 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 1.05;
+  margin: 20px 0;
+}
+
+.steam-feature-content > p {
+  color: rgba(255,255,255,.62);
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+.steam-feature-points {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 25px 0 35px;
+}
+
+.steam-feature-points span {
+  color: rgba(255,255,255,.8);
+  font-size: 12px;
+}
+
+.steam-outline-btn {
+  width: fit-content;
+  padding: 14px 20px;
+  border: 1px solid #d7b77b;
+  color: #d7b77b;
+  text-decoration: none;
+  font-size: 12px;
+  transition: .3s ease;
+}
+
+.steam-outline-btn span {
+  margin-left: 15px;
+}
+
+.steam-outline-btn:hover {
+  background: #d7b77b;
+  color: #171717;
+}
+
+
+/* =========================================================
+   PROCESS
+========================================================= */
+
+.steam-process {
+  padding: 120px 0;
+  background: #f7f6f2;
+}
+
+.steam-heading.center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.steam-process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 70px;
+  border-top: 1px solid #d9d5cd;
+}
+
+.steam-process-card {
+  position: relative;
+  padding: 50px 30px;
+  border-right: 1px solid #d9d5cd;
+  min-height: 280px;
+}
+
+.steam-process-card:last-child {
+  border-right: 0;
+}
+
+.process-number {
+  position: absolute;
+  top: 18px;
+  right: 25px;
+  color: #aaa;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.process-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #171717;
+  color: #d7b77b;
+  font-size: 22px;
+  margin-bottom: 30px;
+}
+
+.steam-process-card h3 {
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.steam-process-card p {
+  color: #777;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   FINAL CTA
+========================================================= */
+
+.steam-final {
+  min-height: 610px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: white;
+  overflow: hidden;
+}
+
+.steam-final > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.steam-final-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(10,10,10,.94),
+      rgba(10,10,10,.60),
+      rgba(10,10,10,.35)
+    );
+}
+
+.steam-final-content {
+  position: relative;
+  z-index: 2;
+  max-width: 650px;
+  padding: 100px 0;
+}
+
+.steam-final-content > span {
+  color: #d7b77b;
+  font-size: 10px;
+  letter-spacing: 3px;
+  font-weight: 700;
+}
+
+.steam-final-content h2 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(50px, 7vw, 82px);
+  line-height: .98;
+  margin: 20px 0;
+}
+
+.steam-final-content h2 em {
+  color: #d7b77b;
+  font-style: italic;
+}
+
+.steam-final-content p {
+  color: rgba(255,255,255,.68);
+  font-size: 15px;
+  margin-bottom: 35px;
+}
+
+.steam-final-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.steam-final-call,
+.steam-final-whatsapp {
+  padding: 16px 25px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  transition: .3s ease;
+}
+
+.steam-final-call {
+  background: #d7b77b;
+  color: #171717;
+}
+
+.steam-final-whatsapp {
+  border: 1px solid rgba(255,255,255,.4);
+  color: white;
+}
+
+.steam-final-call:hover,
+.steam-final-whatsapp:hover {
+  transform: translateY(-3px);
+}
+
+.steam-final-whatsapp:hover {
+  background: rgba(255,255,255,.12);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .steam-hero {
+    min-height: 700px;
+  }
+
+  .steam-intro-grid {
+    grid-template-columns: 1fr;
+    gap: 70px;
+  }
+
+  .steam-intro-images {
+    height: 550px;
+  }
+
+  .steam-benefit-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .steam-feature-box {
+    grid-template-columns: 1fr;
+  }
+
+  .steam-feature-image {
+    height: 450px;
+  }
+
+  .steam-process-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .steam-process-card:nth-child(2) {
+    border-right: 0;
+  }
+
+  .steam-process-card {
+    border-bottom: 1px solid #d9d5cd;
+  }
+
+  .steam-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .steam-stat:nth-child(2) {
+    border-right: 0;
+  }
+
+  .steam-stat {
+    margin-bottom: 25px;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .steam-container {
+    width: 90%;
+  }
+
+  .steam-hero {
+    min-height: 720px;
+  }
+
+  .steam-hero-content {
+    padding: 100px 0 70px;
+  }
+
+  .steam-hero h1 {
+    font-size: 48px;
+    letter-spacing: -2px;
+  }
+
+  .steam-hero-content > p {
+    font-size: 14px;
+  }
+
+  .steam-hero-actions {
+    flex-direction: column;
+  }
+
+  .steam-call-btn,
+  .steam-whatsapp-btn {
+    width: 100%;
+  }
+
+  .steam-hero-info {
+    gap: 16px;
+    margin-top: 45px;
+    flex-wrap: wrap;
+  }
+
+  .steam-hero-info span {
+    font-size: 9px;
+  }
+
+  .steam-scroll {
+    display: none;
+  }
+
+  .steam-intro,
+  .steam-benefits,
+  .steam-feature,
+  .steam-process {
+    padding: 80px 0;
+  }
+
+  .steam-intro-images {
+    height: 460px;
+  }
+
+  .steam-image-main {
+    height: 380px;
+    width: 80%;
+  }
+
+  .steam-image-small {
+    height: 200px;
+    width: 50%;
+  }
+
+  .steam-image-badge {
+    width: 95px;
+    height: 95px;
+    left: 15px;
+    bottom: 30px;
+  }
+
+  .steam-image-badge strong {
+    font-size: 21px;
+  }
+
+  .steam-intro-content h2,
+  .steam-heading h2 {
+    font-size: 42px;
+  }
+
+  .steam-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .steam-stat {
+    padding: 10px;
+  }
+
+  .steam-stat strong {
+    font-size: 30px;
+  }
+
+  .steam-benefit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steam-feature-image {
+    height: 300px;
+  }
+
+  .steam-feature-content {
+    padding: 40px 25px;
+  }
+
+  .steam-feature-content h2 {
+    font-size: 38px;
+  }
+
+  .steam-feature-points {
+    grid-template-columns: 1fr;
+  }
+
+  .steam-process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steam-process-card {
+    border-right: 0;
+  }
+
+  .steam-process-card:last-child {
+    border-bottom: 0;
+  }
+
+  .steam-final {
+    min-height: 600px;
+  }
+
+  .steam-final-content h2 {
+    font-size: 52px;
+  }
+
+  .steam-final-buttons {
+    flex-direction: column;
+  }
+
+  .steam-final-call,
+  .steam-final-whatsapp {
+    text-align: center;
+  }
+}

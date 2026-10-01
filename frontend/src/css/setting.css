@@ -1,0 +1,541 @@
+/* =========================================================
+   SETTINGS PAGE
+========================================================= */
+
+.settings-page {
+  min-height: 100vh;
+  background: #f6f7f9;
+  padding: 110px 20px 50px;
+  color: #191b1f;
+  transition: 0.3s;
+}
+
+.settings-container {
+  max-width: 950px;
+  margin: auto;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.settings-small-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #777;
+}
+
+.settings-header h1 {
+  margin: 7px 0 5px;
+  font-size: 35px;
+  font-weight: 700;
+}
+
+.settings-header p {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.settings-back-btn {
+  border: 1px solid #ddd;
+  background: white;
+  padding: 11px 17px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+  transition: 0.2s;
+}
+
+.settings-back-btn:hover {
+  border-color: #222;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.settings-card {
+  background: #ffffff;
+  border: 1px solid #e6e7e9;
+  border-radius: 14px;
+  padding: 25px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+}
+
+.settings-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.settings-heading-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #f1f2f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.settings-card-heading h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.settings-card-heading p {
+  margin: 0;
+  font-size: 12px;
+  color: #777;
+}
+
+
+/* =========================================================
+   ACCOUNT
+========================================================= */
+
+.settings-account-info {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding-top: 22px;
+}
+
+.settings-user-avatar {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: #191b1f;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-size: 25px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.settings-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-user-details {
+  flex: 1;
+}
+
+.settings-user-details h3 {
+  margin: 0 0 5px;
+  font-size: 17px;
+}
+
+.settings-user-details p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #666;
+}
+
+.settings-user-details span {
+  font-size: 12px;
+  color: #888;
+}
+
+.settings-profile-btn {
+  border: 1px solid #ddd;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   PASSWORD
+========================================================= */
+
+.password-form {
+  padding-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 17px;
+}
+
+.settings-input-group label,
+.preference-item label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+.settings-input-wrapper {
+  height: 45px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  background: white;
+}
+
+.settings-input-wrapper span {
+  font-size: 14px;
+}
+
+.settings-input-wrapper input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 13px;
+  background: transparent;
+}
+
+.show-password {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #666;
+}
+
+.change-password-submit {
+  grid-column: 1 / -1;
+  width: fit-content;
+  border: none;
+  background: #191b1f;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+.settings-options {
+  padding-top: 8px;
+}
+
+.setting-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.setting-option:last-child {
+  border-bottom: none;
+}
+
+.setting-option-left {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.option-icon {
+  width: 39px;
+  height: 39px;
+  border-radius: 9px;
+  background: #f2f3f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setting-option h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.setting-option p {
+  margin: 0;
+  font-size: 11px;
+  color: #888;
+}
+
+
+/* =========================================================
+   TOGGLE
+========================================================= */
+
+.toggle {
+  position: relative;
+  width: 43px;
+  height: 24px;
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle span {
+  position: absolute;
+  inset: 0;
+  background: #d5d7da;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.toggle span::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 3px;
+  left: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.toggle input:checked + span {
+  background: #191b1f;
+}
+
+.toggle input:checked + span::before {
+  transform: translateX(19px);
+}
+
+
+/* =========================================================
+   PREFERENCES
+========================================================= */
+
+.preference-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding-top: 22px;
+}
+
+.preference-item select {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: white;
+  outline: none;
+}
+
+.appearance-btn {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 13px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.appearance-btn.dark-active {
+  background: #191b1f;
+  color: white;
+}
+
+.save-preferences-btn {
+  margin-top: 20px;
+  border: none;
+  background: #191b1f;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   DANGER CARDS
+========================================================= */
+
+.settings-danger-card {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 22px 25px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.settings-danger-card h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.settings-danger-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #777;
+  line-height: 1.5;
+}
+
+.settings-logout-btn {
+  border: 1px solid #ddd;
+  background: white;
+  padding: 10px 17px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.delete-settings {
+  border-color: #f0d4d4;
+}
+
+.delete-settings h2 {
+  color: #b32626;
+}
+
+.delete-account-btn {
+  border: 1px solid #d65a5a;
+  background: white;
+  color: #b32626;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.delete-account-btn:hover {
+  background: #b32626;
+  color: white;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.settings-footer {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  font-size: 11px;
+}
+
+.settings-footer span {
+  margin-right: 5px;
+}
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+.settings-dark {
+  background: #111315;
+  color: #f4f4f4;
+}
+
+.settings-dark .settings-card,
+.settings-dark .settings-danger-card {
+  background: #1a1c1f;
+  border-color: #303338;
+}
+
+.settings-dark .settings-back-btn,
+.settings-dark .settings-profile-btn,
+.settings-dark .settings-logout-btn,
+.settings-dark .appearance-btn,
+.settings-dark .preference-item select,
+.settings-dark .settings-input-wrapper {
+  background: #202226;
+  color: white;
+  border-color: #383b40;
+}
+
+.settings-dark .settings-card-heading {
+  border-color: #303338;
+}
+
+.settings-dark .setting-option {
+  border-color: #303338;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .settings-page {
+    padding: 95px 13px 35px;
+  }
+
+  .settings-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .settings-header h1 {
+    font-size: 29px;
+  }
+
+  .settings-card {
+    padding: 18px;
+  }
+
+  .settings-account-info {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .settings-profile-btn {
+    width: 100%;
+  }
+
+  .password-form {
+    grid-template-columns: 1fr;
+  }
+
+  .preference-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-danger-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .settings-logout-btn,
+  .delete-account-btn {
+    width: 100%;
+  }
+}

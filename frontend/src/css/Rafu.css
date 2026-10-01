@@ -1,0 +1,650 @@
+/* =====================================================
+   RAFU PREMIUM SERVICE PAGE
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+.rafu-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #080705;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.rafu-hero {
+  position: relative;
+
+  width: 100%;
+  min-height: calc(100vh - 75px);
+
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+
+  background: #080705;
+}
+
+
+/* =====================================================
+   BACKGROUND IMAGE
+===================================================== */
+
+.rafu-bg-image {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  object-position: center right;
+
+  z-index: 0;
+}
+
+
+/* =====================================================
+   DARK OVERLAY
+===================================================== */
+
+.rafu-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  background:
+    linear-gradient(
+      90deg,
+      #080705 0%,
+      rgba(8, 7, 5, 0.97) 20%,
+      rgba(8, 7, 5, 0.88) 37%,
+      rgba(8, 7, 5, 0.52) 58%,
+      rgba(8, 7, 5, 0.16) 80%,
+      rgba(8, 7, 5, 0.20) 100%
+    );
+}
+
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.rafu-container {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+
+  max-width: 1350px;
+
+  margin: 0 auto;
+
+  padding: 70px 6%;
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.rafu-content {
+  width: 570px;
+
+  max-width: 50%;
+}
+
+
+/* =====================================================
+   BADGE
+===================================================== */
+
+.rafu-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 12px 20px;
+
+  border: 1px solid rgba(190, 145, 55, 0.45);
+
+  border-radius: 30px;
+
+  background: rgba(20, 15, 8, 0.45);
+
+  color: #c99b3b;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  letter-spacing: 2.5px;
+
+  backdrop-filter: blur(8px);
+
+  margin-bottom: 35px;
+}
+
+.rafu-badge span {
+  color: #d5a84b;
+
+  font-size: 17px;
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.rafu-content h1 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: clamp(55px, 5.2vw, 82px);
+
+  font-weight: 400;
+
+  line-height: 0.98;
+
+  letter-spacing: -2px;
+}
+
+.rafu-content h1 span {
+  background:
+    linear-gradient(
+      90deg,
+      #c18d32,
+      #e0bb68,
+      #b77d26
+    );
+
+  -webkit-background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+}
+
+
+/* =====================================================
+   DECORATIVE LINE
+===================================================== */
+
+.rafu-line {
+  position: relative;
+
+  width: 380px;
+
+  max-width: 100%;
+
+  height: 1px;
+
+  margin: 34px 0 28px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #c4943d,
+      rgba(196, 148, 61, 0.1)
+    );
+}
+
+.rafu-line span {
+  position: absolute;
+
+  left: 48%;
+
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  padding: 0 12px;
+
+  background: #0a0806;
+
+  color: #c4943d;
+
+  font-size: 15px;
+}
+
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
+
+.rafu-description {
+  max-width: 520px;
+
+  margin: 0 0 36px;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 18px;
+
+  line-height: 1.65;
+
+  font-weight: 400;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.rafu-buttons {
+  display: flex;
+
+  align-items: center;
+
+  gap: 22px;
+
+  margin-bottom: 55px;
+}
+
+
+/* =====================================================
+   COMMON BUTTON
+===================================================== */
+
+.rafu-call-btn,
+.rafu-whatsapp-btn {
+  height: 58px;
+
+  min-width: 235px;
+
+  padding: 0 22px;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  align-items: center;
+
+  text-decoration: none;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 17px;
+
+  font-weight: 600;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+
+/* =====================================================
+   CALL BUTTON
+===================================================== */
+
+.rafu-call-btn {
+  justify-content: space-between;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d2a64e,
+      #a87927
+    );
+
+  color: #ffffff;
+
+  border: 1px solid rgba(255, 215, 130, 0.35);
+
+  box-shadow:
+    0 8px 25px rgba(170, 120, 35, 0.22);
+}
+
+.rafu-call-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 13px 30px rgba(170, 120, 35, 0.32);
+}
+
+.rafu-phone-icon {
+  font-size: 20px;
+}
+
+.rafu-arrow {
+  font-size: 25px;
+
+  font-weight: 300;
+}
+
+
+/* =====================================================
+   WHATSAPP
+===================================================== */
+
+.rafu-whatsapp-btn {
+  justify-content: center;
+
+  gap: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #075c29,
+      #06451f
+    );
+
+  color: #ffffff;
+
+  border: 1px solid rgba(50, 190, 95, 0.3);
+
+  box-shadow:
+    0 8px 25px rgba(0, 80, 30, 0.22);
+}
+
+.rafu-whatsapp-btn:hover {
+  transform: translateY(-3px);
+
+  background:
+    linear-gradient(
+      135deg,
+      #087132,
+      #075423
+    );
+
+  box-shadow:
+    0 13px 30px rgba(0, 100, 40, 0.3);
+}
+
+.rafu-whatsapp-icon {
+  width: 24px;
+  height: 24px;
+
+  border: 2px solid white;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 10px;
+}
+
+
+/* =====================================================
+   TRUST
+===================================================== */
+
+.rafu-trust {
+  display: flex;
+
+  align-items: center;
+
+  gap: 30px;
+}
+
+.rafu-trust-item {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.rafu-trust-item strong {
+  color: #c79635;
+
+  font-family: Georgia, serif;
+
+  font-size: 25px;
+
+  font-weight: 400;
+}
+
+.rafu-trust-item span {
+  color: rgba(255, 255, 255, 0.82);
+
+  font-size: 13px;
+
+  letter-spacing: 0.3px;
+}
+
+.rafu-trust-divider {
+  width: 1px;
+
+  height: 55px;
+
+  background:
+    rgba(255, 255, 255, 0.25);
+}
+
+
+/* =====================================================
+   LARGE SCREEN
+===================================================== */
+
+@media (min-width: 1600px) {
+
+  .rafu-container {
+    max-width: 1450px;
+  }
+
+  .rafu-content {
+    width: 620px;
+  }
+
+  .rafu-content h1 {
+    font-size: 88px;
+  }
+
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1000px) {
+
+  .rafu-hero {
+    min-height: 750px;
+  }
+
+  .rafu-bg-image {
+    object-position: 70% center;
+  }
+
+  .rafu-overlay {
+    background:
+      linear-gradient(
+        90deg,
+        #080705 0%,
+        rgba(8, 7, 5, 0.94) 35%,
+        rgba(8, 7, 5, 0.55) 65%,
+        rgba(8, 7, 5, 0.2) 100%
+      );
+  }
+
+  .rafu-content {
+    max-width: 62%;
+  }
+
+  .rafu-content h1 {
+    font-size: 58px;
+  }
+
+  .rafu-description {
+    font-size: 16px;
+  }
+
+  .rafu-buttons {
+    gap: 14px;
+  }
+
+  .rafu-call-btn,
+  .rafu-whatsapp-btn {
+    min-width: 195px;
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 700px) {
+
+  .rafu-hero {
+    min-height: 760px;
+
+    align-items: flex-end;
+  }
+
+  .rafu-bg-image {
+    object-position: 68% center;
+  }
+
+  .rafu-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 4, 3, 0.18) 0%,
+        rgba(5, 4, 3, 0.52) 28%,
+        rgba(5, 4, 3, 0.94) 60%,
+        #080705 82%
+      );
+  }
+
+  .rafu-container {
+    padding: 45px 22px 45px;
+  }
+
+  .rafu-content {
+    width: 100%;
+
+    max-width: 100%;
+  }
+
+  .rafu-badge {
+    font-size: 10px;
+
+    letter-spacing: 1.6px;
+
+    padding: 9px 14px;
+
+    margin-bottom: 22px;
+  }
+
+  .rafu-content h1 {
+    font-size: 45px;
+
+    line-height: 1.02;
+
+    letter-spacing: -1px;
+  }
+
+  .rafu-line {
+    margin: 22px 0 18px;
+  }
+
+  .rafu-description {
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    margin-bottom: 25px;
+  }
+
+  .rafu-buttons {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 10px;
+
+    margin-bottom: 32px;
+  }
+
+  .rafu-call-btn,
+  .rafu-whatsapp-btn {
+    width: 100%;
+
+    min-width: 0;
+
+    height: 53px;
+  }
+
+  .rafu-trust {
+    gap: 16px;
+
+    justify-content: space-between;
+  }
+
+  .rafu-trust-divider {
+    height: 42px;
+  }
+
+  .rafu-trust-item strong {
+    font-size: 20px;
+  }
+
+  .rafu-trust-item span {
+    font-size: 10px;
+  }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 400px) {
+
+  .rafu-hero {
+    min-height: 720px;
+  }
+
+  .rafu-container {
+    padding: 35px 18px;
+  }
+
+  .rafu-content h1 {
+    font-size: 39px;
+  }
+
+  .rafu-description {
+    font-size: 13px;
+  }
+
+  .rafu-trust-item span {
+    font-size: 9px;
+  }
+
+}

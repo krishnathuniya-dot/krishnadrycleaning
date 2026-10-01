@@ -1,0 +1,509 @@
+/* =========================================================
+   KRISHNA DRY CLEANING PROCESS
+========================================================= */
+
+.krishna-process {
+  width: 100%;
+  padding: 85px 0 70px;
+  background: linear-gradient(
+    180deg,
+    #f7fcff 0%,
+    #ffffff 50%,
+    #f7fcff 100%
+  );
+  overflow: hidden;
+}
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.process-heading {
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto 55px;
+  text-align: center;
+}
+
+.process-tag {
+  display: inline-block;
+  margin-bottom: 16px;
+
+  color: #1769e0;
+  font-size: 14px;
+  font-weight: 800;
+
+  letter-spacing: 3px;
+}
+
+.process-heading h2 {
+  margin: 0;
+
+  color: #10284b;
+
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.15;
+
+  font-weight: 700;
+}
+
+.process-heading h2 strong {
+  color: #1769e0;
+  font-weight: 800;
+}
+
+.process-heading h2 span {
+  color: #10284b;
+}
+
+.process-heading p {
+  max-width: 680px;
+
+  margin: 20px auto 0;
+
+  color: #68778d;
+
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   SLIDER OUTER
+========================================================= */
+
+.process-wrapper {
+  width: 100%;
+  overflow: hidden;
+
+  position: relative;
+
+  padding: 10px 0 30px;
+}
+
+/* =========================================================
+   LEFT / RIGHT FADE
+========================================================= */
+
+.process-wrapper::before,
+.process-wrapper::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+
+  width: 100px;
+
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+.process-wrapper::before {
+  left: 0;
+
+  background: linear-gradient(
+    to right,
+    #f7fcff,
+    transparent
+  );
+}
+
+.process-wrapper::after {
+  right: 0;
+
+  background: linear-gradient(
+    to left,
+    #f7fcff,
+    transparent
+  );
+}
+
+/* =========================================================
+   RAIL / TRACK
+========================================================= */
+
+.process-track {
+  display: flex;
+
+  width: max-content;
+
+  gap: 22px;
+
+  padding-left: 25px;
+
+  /* CONTINUOUS MOVEMENT */
+  animation: railwayMove 38s linear infinite;
+
+  will-change: transform;
+}
+
+/*
+   IMPORTANT:
+
+   Cards are duplicated in React.
+
+   First 10 cards = original
+   Next 10 cards = duplicate
+
+   50% movement = exactly one complete set.
+*/
+
+@keyframes railwayMove {
+
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-50% - 11px));
+  }
+
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.process-card {
+  width: 275px;
+  min-width: 275px;
+
+  background: #ffffff;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(20, 92, 170, 0.08);
+
+  box-shadow:
+    0 8px 30px rgba(18, 64, 110, 0.08),
+    0 2px 8px rgba(18, 64, 110, 0.05);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* Card hover */
+
+.process-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow:
+    0 20px 45px rgba(18, 64, 110, 0.15);
+}
+
+/* =========================================================
+   IMAGE
+========================================================= */
+
+.card-image {
+  width: 100%;
+  height: 205px;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background: #edf5fb;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition: transform 0.6s ease;
+}
+
+.process-card:hover .card-image img {
+  transform: scale(1.06);
+}
+
+/* =========================================================
+   IMAGE OVERLAY
+========================================================= */
+
+.image-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background: linear-gradient(
+    to bottom,
+    transparent 45%,
+    rgba(7, 31, 61, 0.38)
+  );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   STEP LABEL
+========================================================= */
+
+.image-step {
+  position: absolute;
+
+  left: 14px;
+  bottom: 13px;
+
+  padding: 6px 12px;
+
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.94);
+
+  color: #1769e0;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+
+  backdrop-filter: blur(5px);
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.card-content {
+  text-align: center;
+
+  padding: 20px 15px 24px;
+}
+
+/* NUMBER */
+
+.step-number {
+  color: #1769e0;
+
+  font-size: 46px;
+
+  line-height: 1;
+
+  font-weight: 900;
+
+  letter-spacing: -2px;
+
+  margin-bottom: 9px;
+}
+
+/* TITLE */
+
+.card-content h3 {
+  margin: 0;
+
+  min-height: 25px;
+
+  color: #132b52;
+
+  font-size: 17px;
+
+  font-weight: 700;
+}
+
+/* =========================================================
+   BLUE LINE
+========================================================= */
+
+.krishna-line {
+  width: 42px;
+
+  height: 3px;
+
+  margin: 14px auto;
+
+  border-radius: 10px;
+
+  background: #1769e0;
+}
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.brand-text {
+  display: block;
+
+  color: #1769e0;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+}
+
+/* =========================================================
+   BOTTOM TEXT
+========================================================= */
+
+.process-bottom {
+  width: 90%;
+  max-width: 700px;
+
+  margin: 25px auto 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 18px;
+}
+
+.process-bottom span {
+  width: 55px;
+
+  height: 1px;
+
+  background: #cbd9e8;
+}
+
+.process-bottom p {
+  margin: 0;
+
+  color: #718096;
+
+  font-size: 13px;
+
+  text-align: center;
+
+  letter-spacing: 0.5px;
+}
+
+.process-bottom strong {
+  color: #1769e0;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .krishna-process {
+    padding: 70px 0 60px;
+  }
+
+  .process-heading {
+    margin-bottom: 40px;
+  }
+
+  .process-card {
+    width: 250px;
+    min-width: 250px;
+  }
+
+  .card-image {
+    height: 190px;
+  }
+
+  .process-track {
+    gap: 18px;
+
+    animation-duration: 32s;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .krishna-process {
+    padding: 55px 0 50px;
+  }
+
+  .process-heading {
+    width: 88%;
+
+    margin-bottom: 30px;
+  }
+
+  .process-tag {
+    font-size: 11px;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 12px;
+  }
+
+  .process-heading h2 {
+    font-size: 30px;
+
+    line-height: 1.2;
+  }
+
+  .process-heading p {
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    margin-top: 15px;
+  }
+
+  .process-track {
+    gap: 15px;
+
+    padding-left: 15px;
+
+    animation-duration: 27s;
+  }
+
+  .process-card {
+    width: 245px;
+
+    min-width: 245px;
+
+    border-radius: 17px;
+  }
+
+  .card-image {
+    height: 180px;
+  }
+
+  .card-content {
+    padding: 17px 12px 20px;
+  }
+
+  .step-number {
+    font-size: 40px;
+  }
+
+  .card-content h3 {
+    font-size: 16px;
+  }
+
+  .brand-text {
+    font-size: 9px;
+  }
+
+  .process-wrapper::before,
+  .process-wrapper::after {
+    width: 35px;
+  }
+
+  .process-bottom {
+    margin-top: 20px;
+  }
+
+  .process-bottom span {
+    width: 30px;
+  }
+
+  .process-bottom p {
+    font-size: 11px;
+  }
+}
