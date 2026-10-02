@@ -1,7 +1,7 @@
 import "../css/Steam.css";
 
 function Steampress() {
-  const phoneNumber = "9910655308";
+  const phoneNumber = "919910655308";
 
   const callNow = () => {
     window.location.href = `tel:+${phoneNumber}`;

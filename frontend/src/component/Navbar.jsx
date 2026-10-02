@@ -1071,7 +1071,7 @@ function Navbar() {
             )}
 
             <a
-              href="https://wa.me/9910655308"
+              href="https://wa.me/919910655308"
               className="whatsapp-btn"
               target="_blank"
               rel="noreferrer"

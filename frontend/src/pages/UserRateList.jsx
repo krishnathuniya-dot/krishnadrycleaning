@@ -8,8 +8,8 @@ const API_URL = "https://krishnadrycleaning.onrender.com";
 // CONTACT NUMBERS
 // =====================================================
 
-const WHATSAPP_NUMBER = "9910655308";
-const CALL_NUMBER = "+9910655308";
+const WHATSAPP_NUMBER = "919910655308";
+const CALL_NUMBER = "+919910655308";
 
 // =====================================================
 // SERVICES

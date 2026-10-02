@@ -1,7 +1,7 @@
 import "../css/Rafu.css";
 
 function Rafu() {
-  const phoneNumber = "919876543210";
+  const phoneNumber = "919910655308";
 
   return (
     <div className="rafu-page">

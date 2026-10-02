@@ -1,7 +1,7 @@
 import "../css/charak.css";
 
 function Charak() {
-  const phoneNumber = "9910655308";
+  const phoneNumber = "919910655308";
 
   return (
     <div className="charak-page">

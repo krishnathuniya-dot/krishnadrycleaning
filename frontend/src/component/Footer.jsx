@@ -90,7 +90,7 @@ export default function Footer() {
               </a>
 
               <a
-                href="https://wa.me/9910655308"
+                href="https://wa.me/919910655308"
                 target="_blank"
                 rel="noreferrer"
                 className="kd-whatsapp-social"
@@ -118,9 +118,9 @@ export default function Footer() {
               </li>
 
               <li>
-                <Link to="/about">
+                <Link to="/admin">
                   <FaChevronRight />
-                  About Us
+                  ADMIN
                 </Link>
               </li>
 
@@ -139,7 +139,7 @@ export default function Footer() {
               </li>
 
               <li>
-                <Link to="/contact">
+                <Link to="/">
                   <FaChevronRight />
                   Contact Us
                 </Link>

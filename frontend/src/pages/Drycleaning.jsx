@@ -2,7 +2,7 @@
 import "../css/dry.css";
 
 function Drycleaning() {
-  const phoneNumber = "9910655308";
+  const phoneNumber = "919910655308";
 
   const whatsappMessage =
     "Hello Krishna Dry Cleaning, I would like to know more about your Dry Cleaning service.";
