@@ -1,3 +1,4 @@
+
 import {
   useCallback,
   useEffect,
@@ -6,84 +7,63 @@ import {
   useState,
 } from "react";
 
-import {
-  NavLink,
-  useNavigate,
-} from "react-router-dom";
-
+import { NavLink, useNavigate } from "react-router-dom";
 import "../css/navbar.css";
 
 const API_URL = "https://krishnadrycleaning.onrender.com";
 
-// =====================================================
-// GOOGLE CLIENT ID
-// =====================================================
-
 const GOOGLE_CLIENT_ID =
   "1051931774575-p62cmrv5cqelgfctuovf5kgouob9m19o.apps.googleusercontent.com";
+
+// =====================================================
+// PROFILE IMAGE URL
+// =====================================================
+
+const getProfileImageUrl = (image) => {
+  if (!image || typeof image !== "string") return "";
+
+  const value = image.trim();
+
+  if (!value) return "";
+
+  // Cloudinary URL: use directly
+  if (/^https?:\/\//i.test(value)) return value;
+
+  // Temporary browser preview
+  if (value.startsWith("blob:")) return value;
+
+  // Legacy local uploads
+  if (value.startsWith("/")) return `${API_URL}${value}`;
+
+  return `${API_URL}/${value}`;
+};
 
 function Navbar() {
   const navigate = useNavigate();
 
-  // =====================================================
-  // AUTH STATES
-  // =====================================================
-
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isLoginView, setIsLoginView] = useState(true);
 
-  // =====================================================
-  // USER STATES
-  // =====================================================
-
   const [user, setUser] = useState(null);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] =
-    useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  // =====================================================
-  // SERVICES DROPDOWN
-  // =====================================================
-
-  const [isServicesOpen, setIsServicesOpen] =
-    useState(false);
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
   const servicesRef = useRef(null);
-
-  // =====================================================
-  // PROFILE DROPDOWN REF (for outside click)
-  // =====================================================
-
   const profileRef = useRef(null);
 
-  // =====================================================
-  // MOBILE MENU STATE (3-dot)
-  // =====================================================
-
-  const [isMobileMenuOpen, setIsMobileMenuOpen] =
-    useState(false);
-  const [isMobileServicesOpen, setIsMobileServicesOpen] =
-    useState(false);
-
-  // =====================================================
-  // GOOGLE REFS / STATES
-  // =====================================================
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false);
 
   const googleBtnRef = useRef(null);
   const googleInitializedRef = useRef(false);
-  const [isGoogleLoading, setIsGoogleLoading] =
-    useState(false);
+  const googleInitTimerRef = useRef(null);
 
-  // =====================================================
-  // FORM STATES
-  // =====================================================
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
-
-  // =====================================================
-  // UI STATES
-  // =====================================================
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -91,15 +71,17 @@ function Navbar() {
   const [messageType, setMessageType] = useState("");
 
   // =====================================================
-  // LOAD USER FROM BACKEND
+  // LOAD USER
   // =====================================================
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadUser = async () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        setUser(null);
+        if (!cancelled) setUser(null);
         return;
       }
 
@@ -107,62 +89,74 @@ function Navbar() {
         const response = await fetch(`${API_URL}/api/profile`, {
           method: "GET",
           headers: {
+            Accept: "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
 
         const data = await response.json();
-        console.log("Navbar Profile Response:", data);
 
         if (!response.ok) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("name");
-          localStorage.removeItem("email");
-          localStorage.removeItem("mobile");
-          localStorage.removeItem("profileImage");
+          // Don't delete the session on a temporary server error.
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("name");
+            localStorage.removeItem("email");
+            localStorage.removeItem("mobile");
+            localStorage.removeItem("profileImage");
 
-          setUser(null);
+            if (!cancelled) setUser(null);
+          }
           return;
         }
 
-        if (data.success && data.user) {
-          setUser(data.user);
-          localStorage.setItem(
-            "user",
-            JSON.stringify(data.user)
-          );
+        if (data?.success && data?.user && !cancelled) {
+          const profile = data.user;
 
-          const userId = data.user._id || data.user.id;
+          setUser(profile);
+          localStorage.setItem("user", JSON.stringify(profile));
+
+          const userId = profile._id || profile.id;
+
           if (userId) {
             localStorage.setItem("userId", userId);
           }
+
+          if (profile.profileImage) {
+            localStorage.setItem("profileImage", profile.profileImage);
+          } else {
+            localStorage.removeItem("profileImage");
+          }
         }
       } catch (error) {
-        console.log("Navbar Profile Error:", error);
+        console.error("Navbar profile error:", error);
 
-        const savedUser = localStorage.getItem("user");
-        if (savedUser) {
+        if (!cancelled) {
           try {
-            setUser(JSON.parse(savedUser));
-          } catch (err) {
-            console.log("Saved User Parse Error:", err);
+            const savedUser = localStorage.getItem("user");
+            if (savedUser) setUser(JSON.parse(savedUser));
+          } catch (parseError) {
+            console.error("Saved user parse error:", parseError);
           }
         }
       }
     };
 
     loadUser();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [] );
 
   // =====================================================
-  // CLOSE SERVICES / PROFILE DROPDOWN ON OUTSIDE CLICK
+  // OUTSIDE CLICK
   // =====================================================
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      // Services dropdown
       if (
         servicesRef.current &&
         !servicesRef.current.contains(event.target)
@@ -170,7 +164,6 @@ function Navbar() {
         setIsServicesOpen(false);
       }
 
-      // Profile dropdown
       if (
         profileRef.current &&
         !profileRef.current.contains(event.target)
@@ -179,21 +172,15 @@ function Navbar() {
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleOutsideClick
-    );
+    document.addEventListener("mousedown", handleOutsideClick);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideClick
-      );
+      document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, []);
 
   // =====================================================
-  // ESCAPE KEY TO CLOSE MODAL / DROPDOWNS / MOBILE MENU
+  // ESCAPE KEY
   // =====================================================
 
   useEffect(() => {
@@ -203,8 +190,9 @@ function Navbar() {
       setIsServicesOpen(false);
       setIsProfileMenuOpen(false);
       setIsMobileMenuOpen(false);
+      setIsMobileServicesOpen(false);
 
-      if (isAuthOpen && !isLoading && !isGoogleLoading) {
+      if (!isLoading && !isGoogleLoading) {
         setIsAuthOpen(false);
         setMessage("");
         setMessageType("");
@@ -217,18 +205,15 @@ function Navbar() {
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isAuthOpen, isLoading, isGoogleLoading]);
+  }, [isLoading, isGoogleLoading]);
 
   // =====================================================
-  // LOCK BODY SCROLL WHEN AUTH MODAL / MOBILE MENU OPEN
+  // BODY SCROLL
   // =====================================================
 
   useEffect(() => {
-    if (isAuthOpen || isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow =
+      isAuthOpen || isMobileMenuOpen ? "hidden" : "";
 
     return () => {
       document.body.style.overflow = "";
@@ -236,41 +221,40 @@ function Navbar() {
   }, [isAuthOpen, isMobileMenuOpen]);
 
   // =====================================================
-  // LISTEN FOR PROFILE UPDATE
+  // PROFILE UPDATE EVENT
   // =====================================================
 
   useEffect(() => {
     const handleProfileUpdate = (event) => {
-      if (event.detail) {
-        setUser(event.detail);
-        localStorage.setItem(
-          "user",
-          JSON.stringify(event.detail)
-        );
+      if (!event.detail) return;
 
-        const userId =
-          event.detail._id || event.detail.id;
-        if (userId) {
-          localStorage.setItem("userId", userId);
-        }
+      const updatedUser = event.detail;
+
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      const userId = updatedUser._id || updatedUser.id;
+
+      if (userId) {
+        localStorage.setItem("userId", userId);
+      }
+
+      if (updatedUser.profileImage) {
+        localStorage.setItem("profileImage", updatedUser.profileImage);
+      } else {
+        localStorage.removeItem("profileImage");
       }
     };
 
-    window.addEventListener(
-      "profileUpdated",
-      handleProfileUpdate
-    );
+    window.addEventListener("profileUpdated", handleProfileUpdate);
 
     return () => {
-      window.removeEventListener(
-        "profileUpdated",
-        handleProfileUpdate
-      );
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
     };
   }, []);
 
   // =====================================================
-  // GOOGLE CREDENTIAL RESPONSE HANDLER (stable)
+  // GOOGLE LOGIN
   // =====================================================
 
   const handleGoogleCredentialResponse = useCallback(
@@ -280,95 +264,63 @@ function Navbar() {
         setMessage("");
         setMessageType("");
 
-        const res = await fetch(
-          `${API_URL}/api/auth/google`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              credential: response.credential,
-            }),
-          }
-        );
+        const res = await fetch(`${API_URL}/api/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            credential: response.credential,
+          }),
+        });
 
         const data = await res.json();
-        console.log("Google Auth Response:", data);
 
         if (!res.ok || !data.success) {
-          setMessage(
-            data.message || "Google login failed."
-          );
+          setMessage(data.message || "Google login failed.");
           setMessageType("error");
           return;
         }
 
-        // SAVE TOKEN
         if (data.token) {
           localStorage.setItem("token", data.token);
         }
 
-        // SAVE USER
         if (data.user) {
-          const userId = data.user._id || data.user.id;
-          if (userId) {
-            localStorage.setItem("userId", userId);
-          }
+          const profile = data.user;
+          const userId = profile._id || profile.id;
 
-          localStorage.setItem(
-            "user",
-            JSON.stringify(data.user)
-          );
+          if (userId) localStorage.setItem("userId", userId);
 
-          localStorage.setItem(
-            "name",
-            data.user.fullName || ""
-          );
+          localStorage.setItem("user", JSON.stringify(profile));
+          localStorage.setItem("name", profile.fullName || "");
+          localStorage.setItem("email", profile.email || "");
+          localStorage.setItem("mobile", profile.mobile || "");
 
-          localStorage.setItem(
-            "email",
-            data.user.email || ""
-          );
-
-          localStorage.setItem(
-            "mobile",
-            data.user.mobile || ""
-          );
-
-          if (data.user.profileImage) {
-            localStorage.setItem(
-              "profileImage",
-              data.user.profileImage
-            );
+          if (profile.profileImage) {
+            localStorage.setItem("profileImage", profile.profileImage);
           } else {
             localStorage.removeItem("profileImage");
           }
 
-          setUser(data.user);
+          setUser(profile);
         }
 
         setMessage("Google login successful!");
         setMessageType("success");
 
-        const needsMobile = data.needsMobile;
-
-        setTimeout(() => {
+        window.setTimeout(() => {
           setIsAuthOpen(false);
           setMessage("");
           setMessageType("");
 
-          if (needsMobile) {
+          if (data.needsMobile) {
             navigate("/complete-profile");
           } else {
             navigate("/");
           }
         }, 1000);
-      } catch (err) {
-        console.log("Google Auth Error:", err);
-        setMessage(
-          "Unable to connect to server. Please try again."
-        );
+      } catch (error) {
+        console.error("Google authentication error:", error);
+        setMessage("Unable to connect to server. Please try again.");
         setMessageType("error");
       } finally {
         setIsGoogleLoading(false);
@@ -378,7 +330,7 @@ function Navbar() {
   );
 
   // =====================================================
-  // GOOGLE SIGN-IN INITIALIZATION
+  // GOOGLE BUTTON INITIALIZATION
   // =====================================================
 
   useEffect(() => {
@@ -390,12 +342,11 @@ function Navbar() {
       if (cancelled) return;
 
       if (!window.google?.accounts?.id) {
-        setTimeout(initGoogle, 200);
+        googleInitTimerRef.current = window.setTimeout(initGoogle, 200);
         return;
       }
 
       try {
-        // Sirf ek baar initialize karo
         if (!googleInitializedRef.current) {
           window.google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
@@ -410,68 +361,57 @@ function Navbar() {
         if (googleBtnRef.current) {
           googleBtnRef.current.innerHTML = "";
 
-          // Responsive Google button width
-          const buttonWidth =
+          const width =
             window.innerWidth <= 360
               ? 240
               : window.innerWidth <= 480
-              ? 280
-              : 340;
+                ? 280
+                : 340;
 
           window.google.accounts.id.renderButton(
             googleBtnRef.current,
             {
               theme: "outline",
               size: "large",
-              width: buttonWidth,
+              width,
               text: "continue_with",
               shape: "rectangular",
               logo_alignment: "left",
             }
           );
         }
-      } catch (err) {
-        console.log("Google Init Error:", err);
+      } catch (error) {
+        console.error("Google button initialization error:", error);
       }
     };
 
-    const timer = setTimeout(initGoogle, 300);
+    googleInitTimerRef.current = window.setTimeout(initGoogle, 300);
 
     return () => {
       cancelled = true;
-      clearTimeout(timer);
+
+      if (googleInitTimerRef.current) {
+        window.clearTimeout(googleInitTimerRef.current);
+      }
     };
   }, [isAuthOpen, isLoginView, handleGoogleCredentialResponse]);
 
   // =====================================================
-  // PROFILE IMAGE URL
+  // PROFILE IMAGE URL — CLOUDINARY SUPPORT
   // =====================================================
 
-  const profileImageUrl = useMemo(() => {
-    if (!user?.profileImage) return "";
-
-    if (
-      user.profileImage.startsWith("http://") ||
-      user.profileImage.startsWith("https://") ||
-      user.profileImage.startsWith("blob:")
-    ) {
-      return user.profileImage;
-    }
-
-    return `${API_URL}${user.profileImage}`;
-  }, [user]);
-
-  // =====================================================
-  // AVATAR LETTER
-  // =====================================================
+  const profileImageUrl = useMemo(
+    () => getProfileImageUrl(user?.profileImage),
+    [user?.profileImage]
+  );
 
   const getAvatarLetter = () => {
-    if (!user?.fullName) return "U";
-    return user.fullName.charAt(0).toUpperCase();
+    const name = user?.fullName || "";
+    return name ? name.charAt(0).toUpperCase() : "U";
   };
 
   // =====================================================
-  // OPEN AUTH MODAL
+  // OPEN / CLOSE AUTH MODAL
   // =====================================================
 
   const openAuthModal = () => {
@@ -484,10 +424,6 @@ function Navbar() {
     setIsMobileMenuOpen(false);
   };
 
-  // =====================================================
-  // CLOSE AUTH MODAL
-  // =====================================================
-
   const closeAuthModal = () => {
     if (isLoading || isGoogleLoading) return;
 
@@ -496,10 +432,6 @@ function Navbar() {
     setMessageType("");
     setShowPassword(false);
   };
-
-  // =====================================================
-  // SWITCH LOGIN / SIGNUP
-  // =====================================================
 
   const switchAuthView = (loginView) => {
     setIsLoginView(loginView);
@@ -516,25 +448,19 @@ function Navbar() {
   // LOGIN / SIGNUP
   // =====================================================
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setMessage("");
     setMessageType("");
 
-    if (!isLoginView) {
-      if (!/^[0-9]{10}$/.test(mobile)) {
-        setMessage(
-          "Please enter a valid 10-digit mobile number."
-        );
-        setMessageType("error");
-        return;
-      }
+    if (!isLoginView && !/^[0-9]{10}$/.test(mobile)) {
+      setMessage("Please enter a valid 10-digit mobile number.");
+      setMessageType("error");
+      return;
     }
 
     if (password.length < 6) {
-      setMessage(
-        "Password must be at least 6 characters."
-      );
+      setMessage("Password must be at least 6 characters.");
       setMessageType("error");
       return;
     }
@@ -554,137 +480,95 @@ function Navbar() {
     setIsLoading(true);
 
     try {
-      let url = "";
-      let body = {};
+      const url = isLoginView
+        ? `${API_URL}/api/login`
+        : `${API_URL}/api/signup`;
 
-      if (isLoginView) {
-        url = `${API_URL}/api/login`;
-        body = {
-          email: email.trim(),
-          password: password,
-        };
-      } else {
-        url = `${API_URL}/api/signup`;
-        body = {
-          fullName: fullName.trim(),
-          mobile: mobile,
-          email: email.trim(),
-          password: password,
-        };
-      }
+      const body = isLoginView
+        ? { email: email.trim(), password }
+        : {
+            fullName: fullName.trim(),
+            mobile,
+            email: email.trim(),
+            password,
+          };
 
       const response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
       const data = await response.json();
-      console.log("Authentication Response:", data);
 
-      if (!response.ok) {
-        setMessage(
-          data.message || "Something went wrong."
-        );
+      if (!response.ok || !data.success) {
+        setMessage(data.message || "Something went wrong.");
         setMessageType("error");
         return;
       }
 
-      if (data.success) {
-        if (!isLoginView) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("name");
-          localStorage.removeItem("email");
-          localStorage.removeItem("mobile");
-          localStorage.removeItem("profileImage");
+      if (!isLoginView) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("name");
+        localStorage.removeItem("email");
+        localStorage.removeItem("mobile");
+        localStorage.removeItem("profileImage");
 
-          setUser(null);
+        setUser(null);
+        setMessage(
+          data.message || "Account created successfully. Please login."
+        );
+        setMessageType("success");
 
-          setMessage(
-            data.message ||
-              "Account created successfully. Please login."
-          );
-          setMessageType("success");
-
-          setPassword("");
-          setFullName("");
-          setMobile("");
-
-          setIsLoginView(true);
-          return;
-        }
-
-        if (isLoginView) {
-          if (data.token) {
-            localStorage.setItem("token", data.token);
-          }
-
-          if (data.user) {
-            const userId =
-              data.user._id || data.user.id;
-
-            if (userId) {
-              localStorage.setItem("userId", userId);
-            }
-
-            localStorage.setItem(
-              "user",
-              JSON.stringify(data.user)
-            );
-
-            localStorage.setItem(
-              "name",
-              data.user.fullName || ""
-            );
-
-            localStorage.setItem(
-              "email",
-              data.user.email || ""
-            );
-
-            localStorage.setItem(
-              "mobile",
-              data.user.mobile || ""
-            );
-
-            if (data.user.profileImage) {
-              localStorage.setItem(
-                "profileImage",
-                data.user.profileImage
-              );
-            } else {
-              localStorage.removeItem("profileImage");
-            }
-
-            setUser(data.user);
-          }
-
-          setMessage(
-            data.message || "Login successful"
-          );
-          setMessageType("success");
-
-          setEmail("");
-          setPassword("");
-          setFullName("");
-          setMobile("");
-
-          setTimeout(() => {
-            setIsAuthOpen(false);
-            setMessage("");
-            setMessageType("");
-          }, 1000);
-        }
+        setPassword("");
+        setFullName("");
+        setMobile("");
+        setIsLoginView(true);
+        return;
       }
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      if (data.user) {
+        const profile = data.user;
+        const userId = profile._id || profile.id;
+
+        if (userId) localStorage.setItem("userId", userId);
+
+        localStorage.setItem("user", JSON.stringify(profile));
+        localStorage.setItem("name", profile.fullName || "");
+        localStorage.setItem("email", profile.email || "");
+        localStorage.setItem("mobile", profile.mobile || "");
+
+        if (profile.profileImage) {
+          localStorage.setItem("profileImage", profile.profileImage);
+        } else {
+          localStorage.removeItem("profileImage");
+        }
+
+        setUser(profile);
+      }
+
+      setMessage(data.message || "Login successful.");
+      setMessageType("success");
+
+      setEmail("");
+      setPassword("");
+      setFullName("");
+      setMobile("");
+
+      window.setTimeout(() => {
+        setIsAuthOpen(false);
+        setMessage("");
+        setMessageType("");
+      }, 1000);
     } catch (error) {
-      console.log("Authentication Error:", error);
-      setMessage(
-        "Unable to connect to server. Please try again."
-      );
+      console.error("Authentication error:", error);
+      setMessage("Unable to connect to server. Please try again.");
       setMessageType("error");
     } finally {
       setIsLoading(false);
@@ -696,31 +580,19 @@ function Navbar() {
   // =====================================================
 
   const handleLogout = async () => {
-    const confirmLogout = window.confirm(
-      "Are you sure you want to logout?"
-    );
-
-    if (!confirmLogout) return;
+    if (!window.confirm("Are you sure you want to logout?")) return;
 
     const token = localStorage.getItem("token");
 
     try {
       if (token) {
-        const response = await fetch(
-          `${API_URL}/api/logout`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-        console.log("Logout Response:", data);
+        await fetch(`${API_URL}/api/logout`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
       }
     } catch (error) {
-      console.log("Logout API Error:", error);
+      console.error("Logout API error:", error);
     }
 
     localStorage.removeItem("token");
@@ -734,13 +606,10 @@ function Navbar() {
     setUser(null);
     setIsProfileMenuOpen(false);
     setIsMobileMenuOpen(false);
-    navigate("/");
-    alert("Logout successful");
-  };
 
-  // =====================================================
-  // PROFILE
-  // =====================================================
+    navigate("/");
+    window.alert("Logout successful");
+  };
 
   const handleProfile = () => {
     setIsProfileMenuOpen(false);
@@ -748,19 +617,11 @@ function Navbar() {
     navigate("/profile");
   };
 
-  // =====================================================
-  // SETTINGS
-  // =====================================================
-
   const handleSettings = () => {
     setIsProfileMenuOpen(false);
     setIsMobileMenuOpen(false);
     navigate("/settings");
   };
-
-  // =====================================================
-  // CLOSE MOBILE MENU
-  // =====================================================
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
@@ -768,7 +629,28 @@ function Navbar() {
   };
 
   // =====================================================
-  // RETURN
+  // REUSABLE PROFILE AVATAR
+  // =====================================================
+
+  const renderAvatar = (className) => (
+    <span className={className}>
+      {profileImageUrl ? (
+        <img
+          src={profileImageUrl}
+          alt={user?.fullName || "Profile"}
+          className="navbar-profile-image"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
+        />
+      ) : (
+        getAvatarLetter()
+      )}
+    </span>
+  );
+
+  // =====================================================
+  // RENDER
   // =====================================================
 
   return (
@@ -779,9 +661,7 @@ function Navbar() {
             <div className="logo-icon">K</div>
             <div className="logo-text">
               <span className="brand-name">KRISHNA</span>
-              <span className="brand-sub">
-                DRY CLEANING
-              </span>
+              <span className="brand-sub">DRY CLEANING</span>
             </div>
           </NavLink>
 
@@ -790,25 +670,14 @@ function Navbar() {
               Home
             </NavLink>
 
-            <div
-              className="services-dropdown-container"
-              ref={servicesRef}
-            >
+            <div className="services-dropdown-container" ref={servicesRef}>
               <button
                 type="button"
                 className="nav-item services-dropdown-btn"
-                onClick={() =>
-                  setIsServicesOpen(!isServicesOpen)
-                }
+                onClick={() => setIsServicesOpen((open) => !open)}
               >
                 <span>Services</span>
-                <span
-                  className={
-                    isServicesOpen
-                      ? "services-arrow rotate"
-                      : "services-arrow"
-                  }
-                >
+                <span className={isServicesOpen ? "services-arrow rotate" : "services-arrow"}>
                   ▼
                 </span>
               </button>
@@ -816,115 +685,52 @@ function Navbar() {
               {isServicesOpen && (
                 <div className="services-dropdown">
                   <div className="services-dropdown-header">
-                    <span className="services-dropdown-small">
-                      OUR SERVICES
-                    </span>
+                    <span className="services-dropdown-small">OUR SERVICES</span>
                     <h3>Premium Clothing Care</h3>
-                    <p>
-                      Professional care for every
-                      fabric, every time.
-                    </p>
+                    <p>Professional care for every fabric, every time.</p>
                   </div>
 
                   <div className="services-list">
-                    <NavLink
-                      to="/services/dry-cleaning"
-                      className="service-dropdown-item"
-                      onClick={() =>
-                        setIsServicesOpen(false)
-                      }
-                    >
-                      <div className="service-icon dry-cleaning-icon">
-                        🧥
-                      </div>
+                    <NavLink to="/services/dry-cleaning" className="service-dropdown-item" onClick={() => setIsServicesOpen(false)}>
+                      <div className="service-icon dry-cleaning-icon">🧥</div>
                       <div className="service-dropdown-content">
                         <strong>Dry Cleaning</strong>
-                        <span>
-                          Deep cleaning & premium
-                          fabric care
-                        </span>
+                        <span>Deep cleaning &amp; premium fabric care</span>
                       </div>
-                      <span className="service-item-arrow">
-                        →
-                      </span>
+                      <span className="service-item-arrow">→</span>
                     </NavLink>
 
-                    <NavLink
-                      to="/services/rafu"
-                      className="service-dropdown-item"
-                      onClick={() =>
-                        setIsServicesOpen(false)
-                      }
-                    >
-                      <div className="service-icon rafu-icon">
-                        🧵
-                      </div>
+                    <NavLink to="/services/rafu" className="service-dropdown-item" onClick={() => setIsServicesOpen(false)}>
+                      <div className="service-icon rafu-icon">🧵</div>
                       <div className="service-dropdown-content">
                         <strong>Rafu / Darning</strong>
-                        <span>
-                          Expert repair for damaged
-                          clothes
-                        </span>
+                        <span>Expert repair for damaged clothes</span>
                       </div>
-                      <span className="service-item-arrow">
-                        →
-                      </span>
+                      <span className="service-item-arrow">→</span>
                     </NavLink>
 
-                    <NavLink
-                      to="/services/charak"
-                      className="service-dropdown-item"
-                      onClick={() =>
-                        setIsServicesOpen(false)
-                      }
-                    >
-                      <div className="service-icon charak-icon">
-                        ✂️
-                      </div>
+                    <NavLink to="/services/charak" className="service-dropdown-item" onClick={() => setIsServicesOpen(false)}>
+                      <div className="service-icon charak-icon">✂️</div>
                       <div className="service-dropdown-content">
                         <strong>Charak</strong>
-                        <span>
-                          Perfect fitting &
-                          professional alterations
-                        </span>
+                        <span>Perfect fitting &amp; professional alterations</span>
                       </div>
-                      <span className="service-item-arrow">
-                        →
-                      </span>
+                      <span className="service-item-arrow">→</span>
                     </NavLink>
 
-                    <NavLink
-                      to="/services/steam-press"
-                      className="service-dropdown-item"
-                      onClick={() =>
-                        setIsServicesOpen(false)
-                      }
-                    >
-                      <div className="service-icon steam-icon">
-                        👔
-                      </div>
+                    <NavLink to="/services/steam-press" className="service-dropdown-item" onClick={() => setIsServicesOpen(false)}>
+                      <div className="service-icon steam-icon">👔</div>
                       <div className="service-dropdown-content">
                         <strong>Steam Press</strong>
-                        <span>
-                          Crisp, wrinkle-free clothes
-                        </span>
+                        <span>Crisp, wrinkle-free clothes</span>
                       </div>
-                      <span className="service-item-arrow">
-                        →
-                      </span>
+                      <span className="service-item-arrow">→</span>
                     </NavLink>
                   </div>
 
                   <div className="services-dropdown-footer">
-                    <span>
-                      ✨ Quality care for your clothes
-                    </span>
-                    <NavLink
-                      to="/services"
-                      onClick={() =>
-                        setIsServicesOpen(false)
-                      }
-                    >
+                    <span>✨ Quality care for your clothes</span>
+                    <NavLink to="/services" onClick={() => setIsServicesOpen(false)}>
                       View All →
                     </NavLink>
                   </div>
@@ -936,10 +742,7 @@ function Navbar() {
               Pricing
             </NavLink>
 
-            <NavLink
-              to="/shop"
-              className="nav-item location-link"
-            >
+            <NavLink to="/shop" className="nav-item location-link">
               <span className="loc-icon">📍</span>
               Store Locator
             </NavLink>
@@ -947,54 +750,20 @@ function Navbar() {
 
           <div className="nav-right">
             {!user && (
-              <button
-                className="auth-trigger-btn"
-                onClick={openAuthModal}
-              >
+              <button className="auth-trigger-btn" onClick={openAuthModal}>
                 👤 Login / Signup
               </button>
             )}
 
             {user && (
-              <div
-                className="user-profile-container"
-                ref={profileRef}
-              >
+              <div className="user-profile-container" ref={profileRef}>
                 <button
                   className="user-profile-btn"
-                  onClick={() =>
-                    setIsProfileMenuOpen(
-                      !isProfileMenuOpen
-                    )
-                  }
+                  onClick={() => setIsProfileMenuOpen((open) => !open)}
                 >
-                  <span className="user-avatar">
-                    {profileImageUrl ? (
-                      <img
-                        src={profileImageUrl}
-                        alt={user.fullName || "Profile"}
-                        className="navbar-profile-image"
-                        onError={(e) => {
-                          e.currentTarget.style.display =
-                            "none";
-                        }}
-                      />
-                    ) : (
-                      getAvatarLetter()
-                    )}
-                  </span>
-
-                  <span className="user-name">
-                    {user.fullName || "User"}
-                  </span>
-
-                  <span
-                    className={
-                      isProfileMenuOpen
-                        ? "profile-arrow rotate"
-                        : "profile-arrow"
-                    }
-                  >
+                  {renderAvatar("user-avatar")}
+                  <span className="user-name">{user.fullName || "User"}</span>
+                  <span className={isProfileMenuOpen ? "profile-arrow rotate" : "profile-arrow"}>
                     ▼
                   </span>
                 </button>
@@ -1006,33 +775,26 @@ function Navbar() {
                         {profileImageUrl ? (
                           <img
                             src={profileImageUrl}
-                            alt={
-                              user.fullName || "Profile"
-                            }
+                            alt={user.fullName || "Profile"}
                             className="dropdown-profile-image"
-                            onError={(e) => {
-                              e.currentTarget.style.display =
-                                "none";
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
                             }}
                           />
                         ) : (
                           getAvatarLetter()
                         )}
                       </div>
+
                       <div>
-                        <strong>
-                          {user.fullName || "User"}
-                        </strong>
+                        <strong>{user.fullName || "User"}</strong>
                         <span>{user.email}</span>
                       </div>
                     </div>
 
-                    <div className="dropdown-divider"></div>
+                    <div className="dropdown-divider" />
 
-                    <button
-                      className="profile-dropdown-item"
-                      onClick={handleProfile}
-                    >
+                    <button className="profile-dropdown-item" onClick={handleProfile}>
                       <span>👤</span>
                       <div>
                         <strong>Profile</strong>
@@ -1040,10 +802,7 @@ function Navbar() {
                       </div>
                     </button>
 
-                    <button
-                      className="profile-dropdown-item"
-                      onClick={handleSettings}
-                    >
+                    <button className="profile-dropdown-item" onClick={handleSettings}>
                       <span>⚙️</span>
                       <div>
                         <strong>Settings</strong>
@@ -1051,18 +810,13 @@ function Navbar() {
                       </div>
                     </button>
 
-                    <div className="dropdown-divider"></div>
+                    <div className="dropdown-divider" />
 
-                    <button
-                      className="profile-dropdown-item logout-item"
-                      onClick={handleLogout}
-                    >
+                    <button className="profile-dropdown-item logout-item" onClick={handleLogout}>
                       <span>🚪</span>
                       <div>
                         <strong>Logout</strong>
-                        <small>
-                          Sign out of your account
-                        </small>
+                        <small>Sign out of your account</small>
                       </div>
                     </button>
                   </div>
@@ -1080,19 +834,10 @@ function Navbar() {
               <span className="wa-text">Chat</span>
             </a>
 
-            {/* ============================================
-                3-DOT MOBILE MENU BUTTON
-            ============================================ */}
             <button
               type="button"
-              className={
-                isMobileMenuOpen
-                  ? "dot-menu-btn active"
-                  : "dot-menu-btn"
-              }
-              onClick={() =>
-                setIsMobileMenuOpen(!isMobileMenuOpen)
-              }
+              className={isMobileMenuOpen ? "dot-menu-btn active" : "dot-menu-btn"}
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
               aria-label="Open menu"
             >
               <span></span>
@@ -1103,134 +848,73 @@ function Navbar() {
         </div>
       </header>
 
-      {/* ============================================
-          MOBILE DRAWER (3-DOT MENU)
-      ============================================ */}
+      {/* MOBILE MENU */}
       <div
-        className={
-          isMobileMenuOpen
-            ? "mobile-menu-overlay active"
-            : "mobile-menu-overlay"
-        }
+        className={isMobileMenuOpen ? "mobile-menu-overlay active" : "mobile-menu-overlay"}
         onClick={closeMobileMenu}
       >
-        <div
-          className="mobile-menu-drawer"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="mobile-menu-drawer" onClick={(event) => event.stopPropagation()}>
           <div className="mobile-menu-header">
             <span className="mobile-menu-title">MENU</span>
-            <button
-              type="button"
-              className="mobile-menu-close"
-              onClick={closeMobileMenu}
-              aria-label="Close menu"
-            >
+            <button type="button" className="mobile-menu-close" onClick={closeMobileMenu} aria-label="Close menu">
               ×
             </button>
           </div>
 
           <nav className="mobile-menu-nav">
-            <NavLink
-              to="/"
-              className="mobile-menu-item"
-              onClick={closeMobileMenu}
-            >
+            <NavLink to="/" className="mobile-menu-item" onClick={closeMobileMenu}>
               <span className="mobile-menu-icon">🏠</span>
               <span>Home</span>
             </NavLink>
 
-            {/* Services Accordion */}
             <div className="mobile-services-wrapper">
               <button
                 type="button"
                 className="mobile-menu-item mobile-services-toggle"
-                onClick={() =>
-                  setIsMobileServicesOpen(
-                    !isMobileServicesOpen
-                  )
-                }
+                onClick={() => setIsMobileServicesOpen((open) => !open)}
               >
                 <span className="mobile-menu-icon">🧺</span>
                 <span>Services</span>
-                <span
-                  className={
-                    isMobileServicesOpen
-                      ? "mobile-services-arrow rotate"
-                      : "mobile-services-arrow"
-                  }
-                >
+                <span className={isMobileServicesOpen ? "mobile-services-arrow rotate" : "mobile-services-arrow"}>
                   ▼
                 </span>
               </button>
 
               {isMobileServicesOpen && (
                 <div className="mobile-services-list">
-                  <NavLink
-                    to="/services/dry-cleaning"
-                    className="mobile-service-item"
-                    onClick={closeMobileMenu}
-                  >
+                  <NavLink to="/services/dry-cleaning" className="mobile-service-item" onClick={closeMobileMenu}>
                     <span>🧥</span> Dry Cleaning
                   </NavLink>
-                  <NavLink
-                    to="/services/rafu"
-                    className="mobile-service-item"
-                    onClick={closeMobileMenu}
-                  >
+                  <NavLink to="/services/rafu" className="mobile-service-item" onClick={closeMobileMenu}>
                     <span>🧵</span> Rafu / Darning
                   </NavLink>
-                  <NavLink
-                    to="/services/charak"
-                    className="mobile-service-item"
-                    onClick={closeMobileMenu}
-                  >
+                  <NavLink to="/services/charak" className="mobile-service-item" onClick={closeMobileMenu}>
                     <span>✂️</span> Charak
                   </NavLink>
-                  <NavLink
-                    to="/services/steam-press"
-                    className="mobile-service-item"
-                    onClick={closeMobileMenu}
-                  >
+                  <NavLink to="/services/steam-press" className="mobile-service-item" onClick={closeMobileMenu}>
                     <span>👔</span> Steam Press
                   </NavLink>
-                  <NavLink
-                    to="/services"
-                    className="mobile-service-item view-all"
-                    onClick={closeMobileMenu}
-                  >
+                  <NavLink to="/services" className="mobile-service-item view-all" onClick={closeMobileMenu}>
                     View All Services →
                   </NavLink>
                 </div>
               )}
             </div>
 
-            <NavLink
-              to="/rate-list"
-              className="mobile-menu-item"
-              onClick={closeMobileMenu}
-            >
+            <NavLink to="/rate-list" className="mobile-menu-item" onClick={closeMobileMenu}>
               <span className="mobile-menu-icon">💰</span>
               <span>Pricing</span>
             </NavLink>
 
-            <NavLink
-              to="/shop"
-              className="mobile-menu-item"
-              onClick={closeMobileMenu}
-            >
+            <NavLink to="/shop" className="mobile-menu-item" onClick={closeMobileMenu}>
               <span className="mobile-menu-icon">📍</span>
               <span>Store Locator</span>
             </NavLink>
 
-            <div className="mobile-menu-divider"></div>
+            <div className="mobile-menu-divider" />
 
             {!user && (
-              <button
-                type="button"
-                className="mobile-auth-btn"
-                onClick={openAuthModal}
-              >
+              <button type="button" className="mobile-auth-btn" onClick={openAuthModal}>
                 👤 Login / Signup
               </button>
             )}
@@ -1243,46 +927,32 @@ function Navbar() {
                       <img
                         src={profileImageUrl}
                         alt={user.fullName || "Profile"}
-                        onError={(e) => {
-                          e.currentTarget.style.display =
-                            "none";
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
                         }}
                       />
                     ) : (
                       getAvatarLetter()
                     )}
                   </div>
+
                   <div className="mobile-user-details">
-                    <strong>
-                      {user.fullName || "User"}
-                    </strong>
+                    <strong>{user.fullName || "User"}</strong>
                     <span>{user.email}</span>
                   </div>
                 </div>
 
-                <NavLink
-                  to="/profile"
-                  className="mobile-menu-item"
-                  onClick={closeMobileMenu}
-                >
+                <NavLink to="/profile" className="mobile-menu-item" onClick={closeMobileMenu}>
                   <span className="mobile-menu-icon">👤</span>
                   <span>My Profile</span>
                 </NavLink>
 
-                <NavLink
-                  to="/settings"
-                  className="mobile-menu-item"
-                  onClick={closeMobileMenu}
-                >
+                <NavLink to="/settings" className="mobile-menu-item" onClick={closeMobileMenu}>
                   <span className="mobile-menu-icon">⚙️</span>
                   <span>Settings</span>
                 </NavLink>
 
-                <button
-                  type="button"
-                  className="mobile-menu-item mobile-logout-btn"
-                  onClick={handleLogout}
-                >
+                <button type="button" className="mobile-menu-item mobile-logout-btn" onClick={handleLogout}>
                   <span className="mobile-menu-icon">🚪</span>
                   <span>Logout</span>
                 </button>
@@ -1292,19 +962,11 @@ function Navbar() {
         </div>
       </div>
 
+      {/* AUTH MODAL */}
       {isAuthOpen && (
-        <div
-          className="auth-modal-overlay"
-          onClick={closeAuthModal}
-        >
-          <div
-            className="professional-auth-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="professional-close-btn"
-              onClick={closeAuthModal}
-            >
+        <div className="auth-modal-overlay" onClick={closeAuthModal}>
+          <div className="professional-auth-modal" onClick={(event) => event.stopPropagation()}>
+            <button className="professional-close-btn" onClick={closeAuthModal} aria-label="Close login">
               ×
             </button>
 
@@ -1318,15 +980,9 @@ function Navbar() {
             <div className="professional-auth-body">
               <div className="professional-auth-header">
                 <span className="auth-small-title">
-                  {isLoginView
-                    ? "WELCOME BACK"
-                    : "GET STARTED"}
+                  {isLoginView ? "WELCOME BACK" : "GET STARTED"}
                 </span>
-                <h2>
-                  {isLoginView
-                    ? "Sign in to your account"
-                    : "Create your account"}
-                </h2>
+                <h2>{isLoginView ? "Sign in to your account" : "Create your account"}</h2>
                 <p>
                   {isLoginView
                     ? "Enter your details to continue."
@@ -1337,11 +993,7 @@ function Navbar() {
               <div className="professional-auth-tabs">
                 <button
                   type="button"
-                  className={
-                    isLoginView
-                      ? "professional-tab active"
-                      : "professional-tab"
-                  }
+                  className={isLoginView ? "professional-tab active" : "professional-tab"}
                   onClick={() => switchAuthView(true)}
                 >
                   Login
@@ -1349,11 +1001,7 @@ function Navbar() {
 
                 <button
                   type="button"
-                  className={
-                    !isLoginView
-                      ? "professional-tab active"
-                      : "professional-tab"
-                  }
+                  className={!isLoginView ? "professional-tab active" : "professional-tab"}
                   onClick={() => switchAuthView(false)}
                 >
                   Create Account
@@ -1361,21 +1009,11 @@ function Navbar() {
               </div>
 
               {message && (
-                <div
-                  className={
-                    messageType === "success"
-                      ? "auth-message success"
-                      : "auth-message error"
-                  }
-                >
-                  <span>
-                    {messageType === "success" ? "✓" : "!"}
-                  </span>
+                <div className={messageType === "success" ? "auth-message success" : "auth-message error"}>
+                  <span>{messageType === "success" ? "✓" : "!"}</span>
                   {message}
                 </div>
               )}
-
-              {/* GOOGLE SIGN-IN */}
 
               <div className="google-auth-section">
                 <div className="google-btn-wrapper">
@@ -1396,10 +1034,7 @@ function Navbar() {
                 </div>
               </div>
 
-              <form
-                className="professional-auth-form"
-                onSubmit={handleSubmit}
-              >
+              <form className="professional-auth-form" onSubmit={handleSubmit}>
                 {!isLoginView && (
                   <div className="professional-input-group">
                     <label>Full Name</label>
@@ -1409,9 +1044,7 @@ function Navbar() {
                         type="text"
                         placeholder="Enter your full name"
                         value={fullName}
-                        onChange={(e) =>
-                          setFullName(e.target.value)
-                        }
+                        onChange={(event) => setFullName(event.target.value)}
                         required
                       />
                     </div>
@@ -1423,22 +1056,15 @@ function Navbar() {
                     <label>Mobile Number</label>
                     <div className="professional-input-wrapper">
                       <span className="input-icon">📱</span>
-                      <span className="country-code">
-                        +91
-                      </span>
+                      <span className="country-code">+91</span>
                       <input
                         type="tel"
                         placeholder="Enter mobile number"
-                        maxLength="10"
+                        maxLength={10}
                         value={mobile}
-                        onChange={(e) => {
-                          const value =
-                            e.target.value.replace(
-                              /\D/g,
-                              ""
-                            );
-                          setMobile(value);
-                        }}
+                        onChange={(event) =>
+                          setMobile(event.target.value.replace(/\D/g, ""))
+                        }
                         required
                       />
                     </div>
@@ -1453,9 +1079,7 @@ function Navbar() {
                       type="email"
                       placeholder="name@example.com"
                       value={email}
-                      onChange={(e) =>
-                        setEmail(e.target.value)
-                      }
+                      onChange={(event) => setEmail(event.target.value)}
                       required
                     />
                   </div>
@@ -1466,22 +1090,16 @@ function Navbar() {
                   <div className="professional-input-wrapper">
                     <span className="input-icon">🔒</span>
                     <input
-                      type={
-                        showPassword ? "text" : "password"
-                      }
+                      type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={password}
-                      onChange={(e) =>
-                        setPassword(e.target.value)
-                      }
+                      onChange={(event) => setPassword(event.target.value)}
                       required
                     />
                     <button
                       type="button"
                       className="password-toggle"
-                      onClick={() =>
-                        setShowPassword(!showPassword)
-                      }
+                      onClick={() => setShowPassword((show) => !show)}
                     >
                       {showPassword ? "Hide" : "Show"}
                     </button>
@@ -1489,8 +1107,7 @@ function Navbar() {
 
                   {!isLoginView && (
                     <small className="password-hint">
-                      Password must contain at least 6
-                      characters.
+                      Password must contain at least 6 characters.
                     </small>
                   )}
                 </div>
@@ -1517,26 +1134,16 @@ function Navbar() {
                   </div>
                 )}
 
-                <button
-                  type="submit"
-                  className="professional-submit-btn"
-                  disabled={isLoading}
-                >
+                <button type="submit" className="professional-submit-btn" disabled={isLoading}>
                   {isLoading ? (
                     <span className="loading-content">
                       <span className="spinner"></span>
-                      {isLoginView
-                        ? "Signing in..."
-                        : "Creating account..."}
+                      {isLoginView ? "Signing in..." : "Creating account..."}
                     </span>
                   ) : (
                     <>
-                      {isLoginView
-                        ? "Sign In"
-                        : "Create Account"}
-                      <span className="submit-arrow">
-                        →
-                      </span>
+                      {isLoginView ? "Sign In" : "Create Account"}
+                      <span className="submit-arrow">→</span>
                     </>
                   )}
                 </button>
@@ -1549,22 +1156,15 @@ function Navbar() {
                     : "Already have an account?"}
                 </span>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    switchAuthView(!isLoginView)
-                  }
-                >
-                  {isLoginView
-                    ? "Create one"
-                    : "Sign in"}
+                <button type="button" onClick={() => switchAuthView(!isLoginView)}>
+                  {isLoginView ? "Create one" : "Sign in"}
                 </button>
               </div>
 
               {!isLoginView && (
                 <div className="auth-terms">
                   By creating an account, you agree to our
-                  <span> Terms & Conditions </span>
+                  <span> Terms &amp; Conditions </span>
                   and
                   <span> Privacy Policy</span>.
                 </div>

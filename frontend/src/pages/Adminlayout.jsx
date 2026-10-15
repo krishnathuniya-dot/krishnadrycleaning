@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 
 import { useEffect, useState } from "react";
-
 import "../css/AdminLayout.css";
 
 const API_URL = "https://krishnadrycleaning.onrender.com";
@@ -16,21 +15,15 @@ function Adminlayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // =====================================================
-  // STATES
-  // =====================================================
-
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-
   const [admin, setAdmin] = useState(null);
-
   const [notificationCount, setNotificationCount] = useState(0);
 
-  // =====================================================
-  // LOAD ADMIN DATA
-  // =====================================================
+  // =========================================
+  // LOAD SAVED ADMIN
+  // =========================================
 
   useEffect(() => {
     const loadAdmin = () => {
@@ -42,8 +35,7 @@ function Adminlayout() {
       }
 
       try {
-        const parsedAdmin = JSON.parse(savedAdmin);
-        setAdmin(parsedAdmin);
+        setAdmin(JSON.parse(savedAdmin));
       } catch (error) {
         console.error("Admin parse error:", error);
         setAdmin(null);
@@ -53,9 +45,9 @@ function Adminlayout() {
     loadAdmin();
   }, []);
 
-  // =====================================================
-  // GET ADMIN PROFILE FROM BACKEND
-  // =====================================================
+  // =========================================
+  // FETCH ADMIN PROFILE
+  // =========================================
 
   const fetchAdminProfile = async () => {
     try {
@@ -72,20 +64,17 @@ function Adminlayout() {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       );
 
-      let data = {};
-
-      try {
-        data = await response.json();
-      } catch (error) {
-        data = {};
-      }
+      const data = await response.json();
 
       if (!response.ok) {
+        console.error(
+          "Admin profile error:",
+          data?.message || response.status
+        );
         return;
       }
 
@@ -104,29 +93,21 @@ function Adminlayout() {
         setAdmin(adminData);
       }
     } catch (error) {
-      console.error(
-        "Admin profile fetch error:",
-        error
-      );
+      console.error("Admin profile fetch error:", error);
     }
   };
-
-  // =====================================================
-  // LOAD ADMIN PROFILE ON MOUNT
-  // =====================================================
 
   useEffect(() => {
     fetchAdminProfile();
   }, []);
 
-  // =====================================================
+  // =========================================
   // NOTIFICATION COUNT
-  // =====================================================
+  // =========================================
 
   const fetchNotificationCount = async () => {
     try {
-      const token =
-        localStorage.getItem("adminToken");
+      const token = localStorage.getItem("adminToken");
 
       if (!token) {
         setNotificationCount(0);
@@ -136,10 +117,8 @@ function Adminlayout() {
       const response = await fetch(
         `${API_URL}/api/notifications/unread-count`,
         {
-          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       );
@@ -148,31 +127,17 @@ function Adminlayout() {
 
       try {
         data = await response.json();
-      } catch (error) {
+      } catch {
         data = {};
       }
 
       if (response.ok) {
-        setNotificationCount(
-          Number(data?.count) || 0
-        );
-      } else {
-        console.log(
-          "Notification count error:",
-          data?.message
-        );
+        setNotificationCount(Number(data?.count) || 0);
       }
     } catch (error) {
-      console.error(
-        "Notification count fetch error:",
-        error
-      );
+      console.error("Notification count error:", error);
     }
   };
-
-  // =====================================================
-  // NOTIFICATION COUNT ON LOAD
-  // =====================================================
 
   useEffect(() => {
     fetchNotificationCount();
@@ -181,25 +146,18 @@ function Adminlayout() {
       fetchNotificationCount();
     }, 30000);
 
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, []);
-
-  // =====================================================
-  // CLOSE MOBILE SIDEBAR / PROFILE
-  // =====================================================
 
   useEffect(() => {
     setMobileOpen(false);
     setProfileOpen(false);
-
     fetchNotificationCount();
   }, [location.pathname]);
 
-  // =====================================================
-  // PROFILE IMAGE
-  // =====================================================
+  // =========================================
+  // CLOUDINARY / BACKEND PROFILE IMAGE
+  // =========================================
 
   const getProfileImage = () => {
     const image =
@@ -207,32 +165,29 @@ function Adminlayout() {
       localStorage.getItem("adminProfileImage") ||
       "";
 
-    if (!image) {
+    if (!image || typeof image !== "string") {
       return "";
     }
 
-    // Full URL
-    if (
-      image.startsWith("http://") ||
-      image.startsWith("https://") ||
-      image.startsWith("blob:")
-    ) {
+    // Cloudinary ya koi complete image URL
+    if (/^https?:\/\//i.test(image)) {
       return image;
     }
 
-    // Backend relative path
-    if (image.startsWith("/")) {
-      return `${API_URL}${image}`;
+    // Temporary browser preview
+    if (image.startsWith("blob:")) {
+      return image;
     }
 
-    return `${API_URL}/${image}`;
+    // Old backend upload path
+    return `${API_URL}${image.startsWith("/") ? "" : "/"}${image}`;
   };
 
   const profileImage = getProfileImage();
 
-  // =====================================================
-  // ADMIN NAME
-  // =====================================================
+  // =========================================
+  // ADMIN DETAILS
+  // =========================================
 
   const adminName =
     admin?.fullName ||
@@ -240,75 +195,35 @@ function Adminlayout() {
     localStorage.getItem("adminName") ||
     "Krishna Admin";
 
-  // =====================================================
-  // ADMIN EMAIL
-  // =====================================================
-
   const adminEmail =
     admin?.email ||
     localStorage.getItem("adminEmail") ||
     "Administrator";
 
-  // =====================================================
-  // ADMIN ROLE
-  // =====================================================
+  const adminRole = admin?.role || "admin";
 
-  const adminRole =
-    admin?.role ||
-    "admin";
+  const avatarLetter = adminName?.charAt(0)?.toUpperCase() || "K";
 
-  // =====================================================
-  // AVATAR LETTER
-  // =====================================================
-
-  const avatarLetter =
-    adminName?.charAt(0)?.toUpperCase() || "K";
-
-  // =====================================================
-  // MENU ITEMS
-  // =====================================================
+  // =========================================
+  // MENU
+  // =========================================
 
   const menuItems = [
     {
       section: "OVERVIEW",
       items: [
-        {
-          name: "Dashboard",
-          path: "/dash",
-          icon: "▦",
-        },
+        { name: "Dashboard", path: "/dash", icon: "▦" },
       ],
     },
-
     {
       section: "MANAGEMENT",
       items: [
-        {
-          name: "Customers",
-          path: "/admin/customers",
-          icon: "♙",
-        },
-
-        {
-          name: "Reviews",
-          path: "/admin/reviews",
-          icon: "★",
-        },
-
-        {
-          name: "Services",
-          path: "/admin/shopmanage",
-          icon: "◇",
-        },
-
-        {
-          name: "Rate List",
-          path: "/admin/rates",
-          icon: "₹",
-        },
+        { name: "Customers", path: "/admin/customers", icon: "♙" },
+        { name: "Reviews", path: "/admin/reviews", icon: "★" },
+        { name: "Services", path: "/admin/shopmanage", icon: "◇" },
+        { name: "Rate List", path: "/admin/rates", icon: "₹" },
       ],
     },
-
     {
       section: "SYSTEM",
       items: [
@@ -317,69 +232,43 @@ function Adminlayout() {
           path: "/admin/notifications",
           icon: "♢",
         },
-
-        {
-          name: "Reports",
-          path: "/admin/reports",
-          icon: "▥",
-        },
-
-        {
-          name: "Settings",
-          path: "/admin/settings",
-          icon: "⚙",
-        },
+        { name: "Reports", path: "/admin/reports", icon: "▥" },
+        { name: "Settings", path: "/admin/settings", icon: "⚙" },
       ],
     },
   ];
 
-  // =====================================================
+  // =========================================
   // LOGOUT
-  // =====================================================
+  // =========================================
 
   const handleLogout = () => {
     const confirmLogout = window.confirm(
       "Are you sure you want to logout?"
     );
 
-    if (!confirmLogout) {
-      return;
-    }
-
-    // =================================================
-    // REMOVE ADMIN AUTH DATA
-    // =================================================
+    if (!confirmLogout) return;
 
     localStorage.removeItem("adminToken");
     localStorage.removeItem("admin");
     localStorage.removeItem("adminSessionId");
     localStorage.removeItem("loginActivity");
-
-    // Admin profile data
     localStorage.removeItem("adminName");
     localStorage.removeItem("adminEmail");
     localStorage.removeItem("adminProfileImage");
 
-    // =================================================
-    // IMPORTANT
-    // =================================================
-    // adminDeviceId ko remove nahi karna.
-    // Ye permanent browser/device identity hai.
-
+    // adminDeviceId ko intentionally preserve kar rahe hain.
     setAdmin(null);
     setProfileOpen(false);
     setMobileOpen(false);
     setNotificationCount(0);
 
-    // Admin login page
-    navigate("/admin", {
-      replace: true,
-    });
+    navigate("/admin", { replace: true });
   };
 
-  // =====================================================
+  // =========================================
   // PAGE TITLE
-  // =====================================================
+  // =========================================
 
   const getPageTitle = () => {
     if (location.pathname === "/dash") {
@@ -388,453 +277,199 @@ function Adminlayout() {
 
     const currentItem = menuItems
       .flatMap((section) => section.items)
-      .find(
-        (item) =>
-          location.pathname === item.path
-      );
+      .find((item) => location.pathname === item.path);
 
-    return (
-      currentItem?.name ||
-      "Admin Panel"
-    );
+    return currentItem?.name || "Admin Panel";
   };
 
-  // =====================================================
-  // PROFILE AVATAR COMPONENT
-  // =====================================================
+  // =========================================
+  // REUSABLE PROFILE AVATAR
+  // =========================================
 
-  const ProfileAvatar = ({
-    className = "",
-    large = false,
-  }) => {
-    if (profileImage) {
-      return (
-        <>
-          <img
-            src={profileImage}
-            alt={adminName}
-            className={`${className} ${
-              large
-                ? "profile-avatar-large"
-                : ""
-            }`}
-            onError={(e) => {
-              e.currentTarget.style.display =
-                "none";
-
-              const fallback =
-                e.currentTarget
-                  .nextElementSibling;
-
-              if (fallback) {
-                fallback.style.display =
-                  "flex";
-              }
-            }}
-          />
-
-          <div
-            className={`${className} ${
-              large
-                ? "profile-avatar-large"
-                : ""
-            } profile-letter-avatar`}
-            style={{
-              display: "none",
-            }}
-          >
-            {avatarLetter}
-          </div>
-        </>
-      );
-    }
-
-    return (
-      <div
-        className={`${className} ${
-          large
-            ? "profile-avatar-large"
-            : ""
-        } profile-letter-avatar`}
-      >
-        {avatarLetter}
-      </div>
-    );
-  };
-
-  // =====================================================
-  // OPEN NOTIFICATIONS
-  // =====================================================
-
-  const openNotifications = () => {
-    setProfileOpen(false);
-
-    navigate(
-      "/admin/notifications"
-    );
-  };
-
-  // =====================================================
-  // ACCOUNT SETTINGS
-  // =====================================================
-
-  const openSettings = () => {
-    setProfileOpen(false);
-
-    navigate(
-      "/admin/settings"
-    );
-  };
-
-  // =====================================================
-  // RETURN
-  // =====================================================
-
-  return (
-    <div
-      className={`
-        admin-layout
-        ${collapsed ? "sidebar-collapsed" : ""}
-        ${
-          mobileOpen
-            ? "mobile-sidebar-open"
-            : ""
-        }
-      `}
-    >
-
-      {/* =====================================================
-          MOBILE OVERLAY
-      ===================================================== */}
-
-      {mobileOpen && (
-        <div
-          className="admin-mobile-overlay"
-          onClick={() =>
-            setMobileOpen(false)
-          }
+  const ProfileAvatar = ({ className = "", large = false }) => (
+    <div className="admin-avatar-container">
+      {profileImage && (
+        <img
+          src={profileImage}
+          alt={adminName}
+          className={`${className} ${large ? "profile-avatar-large" : ""}`}
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
         />
       )}
 
-      {/* =====================================================
-          SIDEBAR
-      ===================================================== */}
+      <div
+        className={`${className} ${
+          large ? "profile-avatar-large" : ""
+        } profile-letter-avatar`}
+        style={{ display: profileImage ? "none" : "flex" }}
+      >
+        {avatarLetter}
+      </div>
+    </div>
+  );
 
+  const openNotifications = () => {
+    setProfileOpen(false);
+    navigate("/admin/notifications");
+  };
+
+  const openSettings = () => {
+    setProfileOpen(false);
+    navigate("/admin/settings");
+  };
+
+  // =========================================
+  // UI
+  // =========================================
+
+  return (
+    <div
+      className={`admin-layout ${
+        collapsed ? "sidebar-collapsed" : ""
+      } ${mobileOpen ? "mobile-sidebar-open" : ""}`}
+    >
+      {mobileOpen && (
+        <div
+          className="admin-mobile-overlay"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* SIDEBAR */}
       <aside className="admin-sidebar">
-
-        {/* =================================================
-            SIDEBAR HEADER
-        ================================================= */}
-
         <div className="admin-sidebar-header">
-
           <NavLink
             to="/dash"
             className="admin-brand"
-            onClick={() =>
-              setMobileOpen(false)
-            }
+            onClick={() => setMobileOpen(false)}
           >
-
-            <div className="admin-logo-icon">
-              K
-            </div>
+            <div className="admin-logo-icon">K</div>
 
             <div className="admin-logo-text">
-              <strong>
-                KRISHNA
-              </strong>
-
-              <span>
-                DRY CLEANING
-              </span>
+              <strong>KRISHNA</strong>
+              <span>DRY CLEANING</span>
             </div>
-
           </NavLink>
-
-          {/* DESKTOP COLLAPSE */}
 
           <button
             type="button"
             className="sidebar-collapse-btn"
-            onClick={() =>
-              setCollapsed(
-                !collapsed
-              )
-            }
-            title={
-              collapsed
-                ? "Expand sidebar"
-                : "Collapse sidebar"
-            }
+            onClick={() => setCollapsed((prev) => !prev)}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {collapsed
-              ? "›"
-              : "‹"}
+            {collapsed ? "›" : "‹"}
           </button>
-
         </div>
 
-        {/* =================================================
-            ADMIN STATUS
-        ================================================= */}
-
+        {/* ADMIN STATUS */}
         <div className="admin-status-card">
-
           <div className="status-avatar-wrapper">
-
-            {profileImage ? (
-              <>
-
-                <img
-                  src={profileImage}
-                  alt={adminName}
-                  className="status-avatar status-avatar-image"
-                  onError={(e) => {
-                    e.currentTarget.style.display =
-                      "none";
-
-                    const fallback =
-                      e.currentTarget
-                        .nextElementSibling;
-
-                    if (fallback) {
-                      fallback.style.display =
-                        "flex";
-                    }
-                  }}
-                />
-
-                <div
-                  className="status-avatar status-avatar-fallback"
-                  style={{
-                    display: "none",
-                  }}
-                >
-                  {avatarLetter}
-                </div>
-
-              </>
-            ) : (
-
-              <div
-                className="status-avatar status-avatar-fallback"
-                style={{
-                  display: "flex",
-                }}
-              >
-                {avatarLetter}
-              </div>
-
-            )}
-
+            <ProfileAvatar
+              className="status-avatar status-avatar-image"
+            />
           </div>
 
           <div className="status-info">
-
-            <strong>
-              {adminName}
-            </strong>
-
+            <strong>{adminName}</strong>
             <span>
               <i></i>
               Online
             </span>
-
           </div>
-
         </div>
 
-        {/* =================================================
-            MENU
-        ================================================= */}
-
+        {/* NAVIGATION */}
         <nav className="admin-navigation">
-
-          {menuItems.map(
-            (section) => (
-
-              <div
-                className="admin-menu-section"
-                key={section.section}
-              >
-
-                <div className="admin-section-title">
-                  {section.section}
-                </div>
-
-                {section.items.map(
-                  (item) => (
-
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      end={
-                        item.path ===
-                        "/dash"
-                      }
-                      className={({
-                        isActive,
-                      }) =>
-                        isActive
-                          ? "admin-menu-item active"
-                          : "admin-menu-item"
-                      }
-                      onClick={() =>
-                        setMobileOpen(
-                          false
-                        )
-                      }
-                    >
-
-                      <span className="admin-menu-icon">
-                        {item.icon}
-                      </span>
-
-                      <span className="admin-menu-name">
-                        {item.name}
-                      </span>
-
-                      {/* NOTIFICATION COUNT */}
-
-                      {item.path ===
-                        "/admin/notifications" &&
-                        notificationCount >
-                          0 && (
-                          <span className="admin-menu-badge">
-
-                            {notificationCount >
-                            99
-                              ? "99+"
-                              : notificationCount}
-
-                          </span>
-                        )}
-
-                    </NavLink>
-
-                  )
-                )}
-
+          {menuItems.map((section) => (
+            <div
+              className="admin-menu-section"
+              key={section.section}
+            >
+              <div className="admin-section-title">
+                {section.section}
               </div>
 
-            )
-          )}
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === "/dash"}
+                  className={({ isActive }) =>
+                    isActive
+                      ? "admin-menu-item active"
+                      : "admin-menu-item"
+                  }
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span className="admin-menu-icon">
+                    {item.icon}
+                  </span>
 
+                  <span className="admin-menu-name">
+                    {item.name}
+                  </span>
+
+                  {item.path === "/admin/notifications" &&
+                    notificationCount > 0 && (
+                      <span className="admin-menu-badge">
+                        {notificationCount > 99
+                          ? "99+"
+                          : notificationCount}
+                      </span>
+                    )}
+                </NavLink>
+              ))}
+            </div>
+          ))}
         </nav>
 
-        {/* =================================================
-            SIDEBAR FOOTER
-        ================================================= */}
-
+        {/* SIDEBAR FOOTER */}
         <div className="admin-sidebar-footer">
-
-          {/* HELP */}
-
           <div className="admin-help-card">
-
-            <div className="help-icon">
-              ?
-            </div>
-
+            <div className="help-icon">?</div>
             <div className="help-content">
-
-              <strong>
-                Need Help?
-              </strong>
-
-              <span>
-                Contact support
-              </span>
-
+              <strong>Need Help?</strong>
+              <span>Contact support</span>
             </div>
-
           </div>
-
-          {/* LOGOUT */}
 
           <button
             type="button"
             className="admin-logout-btn"
             onClick={handleLogout}
           >
-
-            <span className="logout-icon">
-              ↪
-            </span>
-
-            <span className="logout-text">
-              Logout
-            </span>
-
+            <span className="logout-icon">↪</span>
+            <span className="logout-text">Logout</span>
           </button>
-
         </div>
-
       </aside>
 
-      {/* =====================================================
-          MAIN AREA
-      ===================================================== */}
-
+      {/* MAIN AREA */}
       <main className="admin-main">
-
-        {/* =================================================
-            TOPBAR
-        ================================================= */}
-
         <header className="admin-topbar">
-
-          {/* LEFT */}
-
           <div className="topbar-left">
-
-            {/* MOBILE MENU */}
-
             <button
               type="button"
               className="mobile-menu-button"
-              onClick={() =>
-                setMobileOpen(
-                  !mobileOpen
-                )
-              }
+              onClick={() => setMobileOpen((prev) => !prev)}
             >
               ☰
             </button>
 
             <div className="breadcrumb-area">
-
               <div className="breadcrumb">
-
-                <span>
-                  Admin
-                </span>
-
-                <b>
-                  /
-                </b>
-
-                <strong>
-                  {getPageTitle()}
-                </strong>
-
+                <span>Admin</span>
+                <b>/</b>
+                <strong>{getPageTitle()}</strong>
               </div>
 
-              <h1>
-                {getPageTitle()}
-              </h1>
-
+              <h1>{getPageTitle()}</h1>
             </div>
-
           </div>
 
-          {/* RIGHT */}
-
           <div className="topbar-right">
-
-            {/* SEARCH */}
-
             <button
               type="button"
               className="topbar-icon-btn"
@@ -843,116 +478,41 @@ function Adminlayout() {
               ⌕
             </button>
 
-            {/* =================================================
-                NOTIFICATION
-            ================================================= */}
-
             <button
               type="button"
               className="topbar-icon-btn notification-btn"
               title="Notifications"
-              onClick={
-                openNotifications
-              }
+              onClick={openNotifications}
             >
-
               ♢
 
-              {notificationCount >
-                0 && (
+              {notificationCount > 0 && (
                 <span className="notification-count">
-
-                  {notificationCount >
-                  99
+                  {notificationCount > 99
                     ? "99+"
                     : notificationCount}
-
                 </span>
               )}
-
             </button>
-
-            {/* DIVIDER */}
 
             <div className="topbar-divider"></div>
 
-            {/* =================================================
-                ADMIN PROFILE
-            ================================================= */}
-
+            {/* PROFILE DROPDOWN */}
             <div className="topbar-profile-container">
-
               <button
                 type="button"
                 className="topbar-profile"
-                onClick={() =>
-                  setProfileOpen(
-                    !profileOpen
-                  )
-                }
+                onClick={() => setProfileOpen((prev) => !prev)}
               >
-
                 <div className="topbar-avatar-wrapper">
-
-                  {profileImage ? (
-                    <>
-
-                      <img
-                        src={profileImage}
-                        alt={adminName}
-                        className="topbar-avatar topbar-avatar-image"
-                        onError={(e) => {
-                          e.currentTarget.style.display =
-                            "none";
-
-                          const fallback =
-                            e.currentTarget
-                              .nextElementSibling;
-
-                          if (fallback) {
-                            fallback.style.display =
-                              "flex";
-                          }
-                        }}
-                      />
-
-                      <div
-                        className="topbar-avatar topbar-avatar-fallback"
-                        style={{
-                          display:
-                            "none",
-                        }}
-                      >
-                        {avatarLetter}
-                      </div>
-
-                    </>
-                  ) : (
-
-                    <div
-                      className="topbar-avatar topbar-avatar-fallback"
-                      style={{
-                        display:
-                          "flex",
-                      }}
-                    >
-                      {avatarLetter}
-                    </div>
-
-                  )}
-
+                  <ProfileAvatar
+                    className="topbar-avatar topbar-avatar-image"
+                  />
                 </div>
 
                 <div className="topbar-profile-info">
-
-                  <strong>
-                    {adminName}
-                  </strong>
-
-                  <span>
-                    {adminRole}
-                  </span>
-
+                  <strong>{adminName}</strong>
+                  <span>{adminRole}</span>
                 </div>
 
                 <span
@@ -964,213 +524,81 @@ function Adminlayout() {
                 >
                   ▾
                 </span>
-
               </button>
 
-              {/* =================================================
-                  PROFILE DROPDOWN
-              ================================================= */}
-
               {profileOpen && (
-
                 <div className="admin-profile-dropdown">
-
-                  {/* USER */}
-
                   <div className="profile-dropdown-user">
-
                     <div className="dropdown-big-avatar-wrapper">
-
-                      {profileImage ? (
-                        <>
-
-                          <img
-                            src={
-                              profileImage
-                            }
-                            alt={
-                              adminName
-                            }
-                            className="dropdown-big-avatar dropdown-profile-image"
-                            onError={(
-                              e
-                            ) => {
-                              e.currentTarget.style.display =
-                                "none";
-
-                              const fallback =
-                                e.currentTarget
-                                  .nextElementSibling;
-
-                              if (
-                                fallback
-                              ) {
-                                fallback.style.display =
-                                  "flex";
-                              }
-                            }}
-                          />
-
-                          <div
-                            className="dropdown-big-avatar dropdown-avatar-fallback"
-                            style={{
-                              display:
-                                "none",
-                            }}
-                          >
-                            {
-                              avatarLetter
-                            }
-                          </div>
-
-                        </>
-                      ) : (
-
-                        <div
-                          className="dropdown-big-avatar dropdown-avatar-fallback"
-                          style={{
-                            display:
-                              "flex",
-                          }}
-                        >
-                          {
-                            avatarLetter
-                          }
-                        </div>
-
-                      )}
-
+                      <ProfileAvatar
+                        className="dropdown-big-avatar dropdown-profile-image"
+                        large
+                      />
                     </div>
 
                     <div>
-
-                      <strong>
-                        {adminName}
-                      </strong>
-
-                      <span>
-                        {adminEmail}
-                      </span>
-
+                      <strong>{adminName}</strong>
+                      <span>{adminEmail}</span>
                     </div>
-
                   </div>
 
                   <div className="profile-dropdown-divider"></div>
 
-                  {/* ACCOUNT SETTINGS */}
-
-                  <button
-                    type="button"
-                    onClick={
-                      openSettings
-                    }
-                  >
-
-                    <span>
-                      ⚙
-                    </span>
-
+                  <button type="button" onClick={openSettings}>
+                    <span>⚙</span>
                     Account Settings
-
                   </button>
 
-                  {/* NOTIFICATIONS */}
-
                   <button
                     type="button"
-                    onClick={
-                      openNotifications
-                    }
+                    onClick={openNotifications}
                   >
-
-                    <span>
-                      ♢
-                    </span>
-
+                    <span>♢</span>
                     Notifications
 
-                    {notificationCount >
-                      0 && (
-
+                    {notificationCount > 0 && (
                       <span
                         className="dropdown-notification-count"
-                        style={{
-                          marginLeft:
-                            "auto",
-                        }}
+                        style={{ marginLeft: "auto" }}
                       >
-                        {notificationCount >
-                        99
+                        {notificationCount > 99
                           ? "99+"
                           : notificationCount}
                       </span>
-
                     )}
-
                   </button>
 
                   <div className="profile-dropdown-divider"></div>
 
-                  {/* LOGOUT */}
-
                   <button
                     type="button"
                     className="dropdown-logout"
-                    onClick={
-                      handleLogout
-                    }
+                    onClick={handleLogout}
                   >
-
-                    <span>
-                      ↪
-                    </span>
-
+                    <span>↪</span>
                     Logout
-
                   </button>
-
                 </div>
-
               )}
-
             </div>
-
           </div>
-
         </header>
 
-        {/* =================================================
-            PAGE CONTENT
-        ================================================= */}
-
+        {/* PAGE CONTENT */}
         <section className="admin-content">
           <Outlet />
         </section>
 
-        {/* =================================================
-            FOOTER
-        ================================================= */}
-
+        {/* FOOTER */}
         <footer className="admin-footer">
-
           <span>
-            ©{" "}
-            {new Date().getFullYear()}{" "}
-            Krishna Dry Cleaning
+            © {new Date().getFullYear()} Krishna Dry Cleaning
           </span>
-
-          <span>
-            Admin Panel
-          </span>
-
+          <span>Admin Panel</span>
         </footer>
-
       </main>
-
     </div>
   );
 }
 
 export default Adminlayout;
-

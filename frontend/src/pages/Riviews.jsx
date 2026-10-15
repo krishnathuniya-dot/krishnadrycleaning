@@ -1,7 +1,9 @@
+
 import { useEffect, useMemo, useState } from "react";
 import "../css/Allreview.css";
 
 const API_URL = "https://krishnadrycleaning.onrender.com/api";
+const BACKEND_URL = "https://krishnadrycleaning.onrender.com";
 
 function Riviews() {
   const [backendReviews, setBackendReviews] = useState([]);
@@ -23,7 +25,7 @@ function Riviews() {
   const [error, setError] = useState("");
 
   // =====================================================
-  // 20 DUMMY REVIEWS
+  // DUMMY REVIEWS
   // =====================================================
 
   const dummyReviews = [
@@ -210,49 +212,76 @@ function Riviews() {
   ];
 
   // =====================================================
-  // GET TOKEN
+  // TOKEN
   // =====================================================
 
   const getToken = () => {
     return (
       localStorage.getItem("token") ||
-      localStorage.getItem("accessToken")
+      localStorage.getItem("accessToken") ||
+      ""
     );
   };
 
   // =====================================================
-  // GET CURRENT USER
+  // CURRENT USER
   // =====================================================
 
   const getCurrentUser = () => {
     try {
-      const user = localStorage.getItem("user");
+      const user =
+        localStorage.getItem("user") ||
+        localStorage.getItem("User");
 
       if (user) {
         return JSON.parse(user);
       }
     } catch (error) {
-      console.log("User Parse Error:", error);
+      console.error("User Parse Error:", error);
     }
 
     return null;
   };
 
   // =====================================================
-  // IMAGE URL
+  // CLOUDINARY + BACKEND IMAGE URL
   // =====================================================
 
   const getImageUrl = (image) => {
-    if (!image) return "";
-
-    if (
-      image.startsWith("http://") ||
-      image.startsWith("https://")
-    ) {
-      return image;
+    if (!image || typeof image !== "string") {
+      return "";
     }
 
-    return `http://localhost:2340${image}`;
+    const value = image.trim();
+
+    if (!value) {
+      return "";
+    }
+
+    // Cloudinary or other absolute image URLs
+    if (/^https?:\/\//i.test(value)) {
+      return value;
+    }
+
+    // Temporary browser preview
+    if (value.startsWith("blob:")) {
+      return value;
+    }
+
+    // Old backend upload paths
+    return `${BACKEND_URL}${value.startsWith("/") ? "" : "/"}${value}`;
+  };
+
+  // =====================================================
+  // RESPONSE JSON HELPER
+  // =====================================================
+
+  const readResponse = async (response) => {
+    try {
+      return await response.json();
+    } catch {
+      return {};
+    }
   };
 
   // =====================================================
@@ -263,19 +292,32 @@ function Riviews() {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        `${API_URL}/reviews`
-      );
+      const response = await fetch(`${API_URL}/reviews`);
+      const data = await readResponse(response);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setBackendReviews(data.reviews || []);
-      } else {
-        setBackendReviews([]);
+      if (!response.ok) {
+        throw new Error(
+          data?.message || "Unable to fetch reviews."
+        );
       }
+
+      let list = [];
+
+      if (Array.isArray(data)) {
+        list = data;
+      } else if (Array.isArray(data?.reviews)) {
+        list = data.reviews;
+      } else if (Array.isArray(data?.data)) {
+        list = data.data;
+      } else if (Array.isArray(data?.data?.reviews)) {
+        list = data.data.reviews;
+      } else if (Array.isArray(data?.result)) {
+        list = data.result;
+      }
+
+      setBackendReviews(list);
     } catch (error) {
-      console.log("Get Reviews Error:", error);
+      console.error("Get Reviews Error:", error);
       setBackendReviews([]);
     } finally {
       setLoading(false);
@@ -295,24 +337,21 @@ function Riviews() {
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/reviews/my`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/reviews/my`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const data = await response.json();
+      const data = await readResponse(response);
 
-      if (data.success && data.exists) {
-        setMyReview(data.review);
+      if (response.ok && data?.success && data?.exists) {
+        setMyReview(data.review || null);
       } else {
         setMyReview(null);
       }
     } catch (error) {
-      console.log("My Review Error:", error);
+      console.error("My Review Error:", error);
     }
   };
 
@@ -326,7 +365,7 @@ function Riviews() {
   }, []);
 
   // =====================================================
-  // MERGE REVIEWS
+  // MERGE BACKEND REVIEWS
   // =====================================================
 
   const allReviews = useMemo(() => {
@@ -334,34 +373,33 @@ function Riviews() {
       ...item,
 
       name:
-        item.name ||
-        item.fullName ||
-        item.user?.name ||
-        item.user?.fullName ||
+        item?.name ||
+        item?.fullName ||
+        item?.user?.name ||
+        item?.user?.fullName ||
         "Customer",
 
       profileImage:
-        item.profileImage ||
-        item.user?.profileImage ||
+        item?.profileImage ||
+        item?.user?.profileImage ||
+        item?.customer?.profileImage ||
         "",
 
       rating: Math.min(
         5,
-        Math.max(
-          1,
-          Number(item.rating) || 5
-        )
+        Math.max(1, Number(item?.rating) || 5)
       ),
 
       review:
-        item.review ||
-        item.comment ||
-        item.message ||
+        item?.review ||
+        item?.comment ||
+        item?.message ||
         "Excellent service.",
 
       createdAt:
-        item.createdAt ||
-        item.date ||
+        item?.createdAt ||
+        item?.date ||
+        item?.updatedAt ||
         null,
 
       isBackend: true,
@@ -379,17 +417,12 @@ function Riviews() {
       return dateB - dateA;
     });
 
-    const dummyData = dummyReviews.map(
-      (item) => ({
-        ...item,
-        isBackend: false,
-      })
-    );
+    const dummyData = dummyReviews.map((item) => ({
+      ...item,
+      isBackend: false,
+    }));
 
-    return [
-      ...backendData,
-      ...dummyData,
-    ];
+    return [...backendData, ...dummyData];
   }, [backendReviews]);
 
   // =====================================================
@@ -402,18 +435,27 @@ function Riviews() {
     allReviews.length / cardsPerPage
   );
 
+  // Keep current slide valid when the list changes
+  useEffect(() => {
+    if (totalPages === 0) {
+      setCurrentPage(0);
+    } else if (currentPage >= totalPages) {
+      setCurrentPage(totalPages - 1);
+    }
+  }, [currentPage, totalPages]);
+
   // =====================================================
   // AUTO SLIDER
   // =====================================================
 
   useEffect(() => {
-    if (totalPages <= 1) return;
+    if (totalPages <= 1) {
+      return undefined;
+    }
 
     const interval = setInterval(() => {
-      setCurrentPage((prev) =>
-        prev >= totalPages - 1
-          ? 0
-          : prev + 1
+      setCurrentPage((previous) =>
+        previous >= totalPages - 1 ? 0 : previous + 1
       );
     }, 4500);
 
@@ -421,26 +463,22 @@ function Riviews() {
   }, [totalPages]);
 
   // =====================================================
-  // NEXT
+  // NEXT / PREVIOUS
   // =====================================================
 
   const nextSlide = () => {
-    setCurrentPage((prev) =>
-      prev >= totalPages - 1
-        ? 0
-        : prev + 1
+    if (totalPages <= 1) return;
+
+    setCurrentPage((previous) =>
+      previous >= totalPages - 1 ? 0 : previous + 1
     );
   };
 
-  // =====================================================
-  // PREVIOUS
-  // =====================================================
-
   const previousSlide = () => {
-    setCurrentPage((prev) =>
-      prev <= 0
-        ? totalPages - 1
-        : prev - 1
+    if (totalPages <= 1) return;
+
+    setCurrentPage((previous) =>
+      previous <= 0 ? totalPages - 1 : previous - 1
     );
   };
 
@@ -448,31 +486,26 @@ function Riviews() {
   // VISIBLE REVIEWS
   // =====================================================
 
-  const startIndex =
-    currentPage * cardsPerPage;
+  const startIndex = currentPage * cardsPerPage;
 
-  const visibleReviews =
-    allReviews.slice(
-      startIndex,
-      startIndex + cardsPerPage
-    );
+  const visibleReviews = allReviews.slice(
+    startIndex,
+    startIndex + cardsPerPage
+  );
 
   // =====================================================
   // AVERAGE RATING
   // =====================================================
 
   const averageRating = useMemo(() => {
-    if (!allReviews.length) return "5.0";
+    if (!allReviews.length) return "0.0";
 
     const total = allReviews.reduce(
-      (sum, item) =>
-        sum + Number(item.rating || 5),
+      (sum, item) => sum + Number(item.rating || 0),
       0
     );
 
-    return (
-      total / allReviews.length
-    ).toFixed(1);
+    return (total / allReviews.length).toFixed(1);
   }, [allReviews]);
 
   // =====================================================
@@ -482,24 +515,13 @@ function Riviews() {
   const openReviewForm = () => {
     const token = getToken();
 
-    // =================================================
-    // USER NOT LOGGED IN
-    // OPEN NAVBAR EXISTING LOGIN POPUP
-    // =================================================
-
     if (!token) {
-      window.dispatchEvent(
-        new Event("openLoginPopup")
-      );
-
+      window.dispatchEvent(new Event("openLoginPopup"));
       return;
     }
 
-    // =================================================
-    // USER LOGGED IN
-    // OPEN REVIEW FORM
-    // =================================================
-
+    setError("");
+    setMessage("");
     setEditing(false);
     setRating(5);
     setReviewText("");
@@ -508,15 +530,23 @@ function Riviews() {
   };
 
   // =====================================================
-  // EDIT REVIEW
+  // EDIT MY REVIEW
   // =====================================================
 
   const editMyReview = () => {
     if (!myReview) return;
 
+    setError("");
+    setMessage("");
     setEditing(true);
-    setRating(myReview.rating);
-    setReviewText(myReview.review);
+    setRating(Number(myReview.rating) || 5);
+    setReviewText(
+      myReview.review ||
+      myReview.comment ||
+      myReview.message ||
+      ""
+    );
+    setHoverRating(0);
     setShowForm(true);
   };
 
@@ -530,9 +560,7 @@ function Riviews() {
     const token = getToken();
 
     if (!token) {
-      window.dispatchEvent(
-        new Event("openLoginPopup")
-      );
+      window.dispatchEvent(new Event("openLoginPopup"));
       return;
     }
 
@@ -542,9 +570,7 @@ function Riviews() {
     }
 
     if (reviewText.trim().length < 3) {
-      setError(
-        "Review must be at least 3 characters."
-      );
+      setError("Review must be at least 3 characters.");
       return;
     }
 
@@ -554,39 +580,26 @@ function Riviews() {
       setMessage("");
 
       const url = editing
-        ? `${API_URL}/reviews/${myReview._id}`
+        ? `${API_URL}/reviews/${encodeURIComponent(myReview._id)}`
         : `${API_URL}/reviews`;
 
-      const response = await fetch(
-        url,
-        {
-          method: editing
-            ? "PUT"
-            : "POST",
+      const response = await fetch(url, {
+        method: editing ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          rating,
+          review: reviewText.trim(),
+        }),
+      });
 
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            rating,
-            review:
-              reviewText.trim(),
-          }),
-        }
-      );
-
-      const data =
-        await response.json();
+      const data = await readResponse(response);
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Something went wrong"
+          data?.message || "Unable to submit review."
         );
       }
 
@@ -598,94 +611,76 @@ function Riviews() {
 
       setReviewText("");
       setRating(5);
+      setHoverRating(0);
       setShowForm(false);
       setEditing(false);
 
-      await fetchReviews();
-      await fetchMyReview();
-
+      await Promise.all([fetchReviews(), fetchMyReview()]);
       setCurrentPage(0);
 
-      setTimeout(() => {
-        setMessage("");
-      }, 3500);
+      setTimeout(() => setMessage(""), 3500);
     } catch (error) {
-      console.log(
-        "Submit Review Error:",
-        error
-      );
-
-      setError(
-        error.message ||
-          "Unable to submit review."
-      );
+      console.error("Submit Review Error:", error);
+      setError(error.message || "Unable to submit review.");
     } finally {
       setSubmitting(false);
     }
   };
 
   // =====================================================
-  // DELETE REVIEW
+  // DELETE MY REVIEW
   // =====================================================
 
   const deleteMyReview = async () => {
-    if (!myReview) return;
+    if (!myReview?._id) {
+      setError("Review ID not found.");
+      return;
+    }
 
-    const confirmDelete =
-      window.confirm(
-        "Are you sure you want to delete your review?"
-      );
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your review?"
+    );
 
     if (!confirmDelete) return;
 
     const token = getToken();
 
+    if (!token) {
+      window.dispatchEvent(new Event("openLoginPopup"));
+      return;
+    }
+
     try {
+      setError("");
+
       const response = await fetch(
-        `${API_URL}/reviews/${myReview._id}`,
+        `${API_URL}/reviews/${encodeURIComponent(myReview._id)}`,
         {
           method: "DELETE",
-
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const data =
-        await response.json();
+      const data = await readResponse(response);
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Unable to delete review"
+          data?.message || "Unable to delete review."
         );
       }
 
-      setMessage(
-        "Your review has been deleted."
-      );
-
+      setMessage("Your review has been deleted.");
       setMyReview(null);
 
       await fetchReviews();
-
       setCurrentPage(0);
 
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
+      setTimeout(() => setMessage(""), 3000);
     } catch (error) {
-      console.log(
-        "Delete Review Error:",
-        error
-      );
-
-      setError(
-        error.message ||
-          "Unable to delete review."
-      );
+      console.error("Delete Review Error:", error);
+      setError(error.message || "Unable to delete review.");
     }
   };
 
@@ -696,26 +691,24 @@ function Riviews() {
   const formatDate = (date) => {
     if (!date) return "";
 
-    return new Date(
-      date
-    ).toLocaleDateString(
-      "en-IN",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }
-    );
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "";
+    }
+
+    return parsedDate.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   // =====================================================
   // STARS
   // =====================================================
 
-  const renderStars = (
-    value,
-    interactive = false
-  ) => {
+  const renderStars = (value, interactive = false) => {
     return (
       <div
         className={
@@ -723,45 +716,33 @@ function Riviews() {
             ? "review-stars interactive"
             : "review-stars"
         }
+        aria-label={`${value} out of 5 stars`}
       >
-        {[1, 2, 3, 4, 5].map(
-          (star) => (
-            <button
-              key={star}
-              type={
-                interactive
-                  ? "button"
-                  : undefined
-              }
-              className={
-                star <=
-                (interactive
-                  ? hoverRating ||
-                    rating
-                  : value)
-                  ? "star active"
-                  : "star"
-              }
-              onMouseEnter={() => {
-                if (interactive) {
-                  setHoverRating(star);
-                }
-              }}
-              onMouseLeave={() => {
-                if (interactive) {
-                  setHoverRating(0);
-                }
-              }}
-              onClick={() => {
-                if (interactive) {
-                  setRating(star);
-                }
-              }}
-            >
-              ★
-            </button>
-          )
-        )}
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            className={
+              star <=
+              (interactive ? hoverRating || rating : value)
+                ? "star active"
+                : "star"
+            }
+            onMouseEnter={() => {
+              if (interactive) setHoverRating(star);
+            }}
+            onMouseLeave={() => {
+              if (interactive) setHoverRating(0);
+            }}
+            onClick={() => {
+              if (interactive) setRating(star);
+            }}
+            disabled={!interactive}
+            aria-label={`${star} star${star > 1 ? "s" : ""}`}
+          >
+            ★
+          </button>
+        ))}
       </div>
     );
   };
@@ -772,14 +753,10 @@ function Riviews() {
 
   return (
     <section className="reviews-section">
-
       <div className="reviews-container">
-
         {/* HEADER */}
         <div className="reviews-header">
-
           <div className="reviews-heading">
-
             <span className="reviews-eyebrow">
               CUSTOMER EXPERIENCES
             </span>
@@ -787,110 +764,76 @@ function Riviews() {
             <h2>
               Loved by customers.
               <br />
-
-              <span>
-                Trusted for every garment.
-              </span>
+              <span>Trusted for every garment.</span>
             </h2>
 
             <p>
-              Real experiences from customers
-              who trust us with their favourite
-              clothes.
+              Real experiences from customers who trust us
+              with their favourite clothes.
             </p>
-
           </div>
 
           {/* RATING */}
           <div className="rating-summary">
-
             <div className="rating-main">
-
-              <strong>
-                {averageRating}
-              </strong>
+              <strong>{averageRating}</strong>
 
               <div>
                 {renderStars(
-                  Math.round(
-                    Number(
-                      averageRating
-                    )
-                  )
+                  Math.round(Number(averageRating))
                 )}
-
-                <span>
-                  Customer Rating
-                </span>
+                <span>Customer Rating</span>
               </div>
-
             </div>
 
             <div className="rating-line"></div>
 
             <div className="rating-trust">
-
-              <span className="trust-check">
-                ✓
-              </span>
+              <span className="trust-check">✓</span>
 
               <div>
-                <strong>
-                  Genuine customer feedback
-                </strong>
-
+                <strong>Customer feedback</strong>
                 <small>
-                  Real reviews + customer
-                  experiences.
+                  Customer reviews and experiences.
                 </small>
               </div>
-
             </div>
-
           </div>
-
         </div>
 
         {/* MESSAGE */}
-
         {message && (
-          <div className="review-success">
+          <div className="review-success" role="status">
             <span>✓</span>
             {message}
           </div>
         )}
 
         {error && (
-          <div className="review-error">
+          <div className="review-error" role="alert">
             <span>!</span>
             {error}
           </div>
         )}
 
         {/* WRITE REVIEW */}
-
         <div className="review-action-bar">
-
           <div>
-
             <span className="action-small">
               YOUR EXPERIENCE MATTERS
             </span>
 
-            <h3>
-              Had your clothes cleaned with us?
-            </h3>
+            <h3>Had your clothes cleaned with us?</h3>
 
             <p>
-              Share your experience and help
-              other customers choose confidently.
+              Share your experience and help other customers
+              choose confidently.
             </p>
-
           </div>
 
           {!myReview ? (
-
             <button
+              type="button"
               className="write-review-btn"
               onClick={openReviewForm}
             >
@@ -898,16 +841,14 @@ function Riviews() {
               Write a Review
               <strong>→</strong>
             </button>
-
           ) : (
-
             <div className="my-review-actions">
-
               <div className="your-review-badge">
                 ✓ Your Review
               </div>
 
               <button
+                type="button"
                 className="edit-review-btn"
                 onClick={editMyReview}
               >
@@ -915,28 +856,21 @@ function Riviews() {
               </button>
 
               <button
+                type="button"
                 className="delete-review-btn"
                 onClick={deleteMyReview}
               >
                 Delete
               </button>
-
             </div>
-
           )}
-
         </div>
 
-        {/* FORM */}
-
+        {/* REVIEW FORM */}
         {showForm && (
-
           <div className="review-form-card">
-
             <div className="form-top">
-
               <div>
-
                 <span>
                   {editing
                     ? "EDIT YOUR REVIEW"
@@ -948,142 +882,101 @@ function Riviews() {
                     ? "Update your feedback"
                     : "How was your experience?"}
                 </h3>
-
               </div>
 
               <button
+                type="button"
                 className="form-close"
-                onClick={() =>
-                  setShowForm(false)
-                }
+                onClick={() => setShowForm(false)}
+                aria-label="Close review form"
               >
                 ×
               </button>
-
             </div>
 
             <div className="review-user-preview">
-
               {(() => {
-
-                const user =
-                  getCurrentUser();
+                const user = getCurrentUser();
 
                 const image =
                   myReview?.profileImage ||
+                  myReview?.user?.profileImage ||
                   user?.profileImage ||
+                  user?.image ||
                   "";
 
                 const name =
                   myReview?.name ||
+                  myReview?.fullName ||
                   user?.name ||
                   user?.fullName ||
                   "You";
 
+                const imageUrl = getImageUrl(image);
+
                 return (
                   <>
                     <div className="preview-avatar">
-
-                      {image ? (
+                      {imageUrl ? (
                         <img
-                          src={getImageUrl(
-                            image
-                          )}
+                          src={imageUrl}
                           alt={name}
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                       ) : (
                         <span>
-                          {name
-                            .charAt(0)
-                            .toUpperCase()}
+                          {String(name).charAt(0).toUpperCase()}
                         </span>
                       )}
-
                     </div>
 
                     <div>
-                      <strong>
-                        {name}
-                      </strong>
-
+                      <strong>{name}</strong>
                       <small>
-                        Your review will appear
-                        with your profile.
+                        Your review will appear with your profile.
                       </small>
                     </div>
                   </>
                 );
-
               })()}
-
             </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="review-form"
-            >
-
+            <form onSubmit={handleSubmit} className="review-form">
               <div className="rating-input">
+                <label>Your Rating</label>
 
-                <label>
-                  Your Rating
-                </label>
-
-                {renderStars(
-                  rating,
-                  true
-                )}
+                {renderStars(rating, true)}
 
                 <span className="rating-text">
-
-                  {rating === 5 &&
-                    "Excellent"}
-
-                  {rating === 4 &&
-                    "Very Good"}
-
-                  {rating === 3 &&
-                    "Good"}
-
-                  {rating === 2 &&
-                    "Needs Improvement"}
-
-                  {rating === 1 &&
-                    "Poor"}
-
+                  {rating === 5 && "Excellent"}
+                  {rating === 4 && "Very Good"}
+                  {rating === 3 && "Good"}
+                  {rating === 2 && "Needs Improvement"}
+                  {rating === 1 && "Poor"}
                 </span>
-
               </div>
 
               <div className="textarea-wrapper">
-
                 <textarea
                   value={reviewText}
-                  onChange={(e) =>
-                    setReviewText(
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => setReviewText(e.target.value)}
                   placeholder="Tell us about your experience with our dry cleaning service..."
                   maxLength={500}
                   rows={5}
                   required
                 />
 
-                <span>
-                  {reviewText.length}/500
-                </span>
-
+                <span>{reviewText.length}/500</span>
               </div>
 
               <div className="form-buttons">
-
                 <button
                   type="button"
                   className="cancel-btn"
-                  onClick={() =>
-                    setShowForm(false)
-                  }
+                  onClick={() => setShowForm(false)}
+                  disabled={submitting}
                 >
                   Cancel
                 </button>
@@ -1099,52 +992,29 @@ function Riviews() {
                     ? "Update Review →"
                     : "Publish Review →"}
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         )}
 
         {/* SLIDER TITLE */}
-
         <div className="reviews-section-title">
-
           <div>
-            <span>
-              CUSTOMER STORIES
-            </span>
-
-            <h3>
-              What our customers say
-            </h3>
+            <span>CUSTOMER STORIES</span>
+            <h3>What our customers say</h3>
           </div>
-
         </div>
 
         {/* SLIDER */}
-
         {loading ? (
-
           <div className="reviews-loading">
-
             <div className="loading-spinner"></div>
-
-            <p>
-              Loading customer reviews...
-            </p>
-
+            <p>Loading customer reviews...</p>
           </div>
-
         ) : (
-
           <div className="reviews-slider-wrapper">
-
-            {/* PREVIOUS */}
-
             <button
+              type="button"
               className="review-arrow review-prev"
               onClick={previousSlide}
               disabled={totalPages <= 1}
@@ -1153,159 +1023,106 @@ function Riviews() {
               ‹
             </button>
 
-            {/* CARDS */}
-
             <div className="reviews-slider">
+              <div className="reviews-track" key={currentPage}>
+                {visibleReviews.map((item, index) => {
+                  const image = getImageUrl(item.profileImage);
 
-              <div
-                className="reviews-track"
-                key={currentPage}
-              >
+                  const firstLetter =
+                    String(item.name || "U")
+                      .charAt(0)
+                      .toUpperCase() || "U";
 
-                {visibleReviews.map(
-                  (item, index) => {
+                  return (
+                    <article
+                      className={
+                        item.isBackend
+                          ? "review-card backend-review-card"
+                          : "review-card"
+                      }
+                      key={item._id || index}
+                    >
+                      {/* USER */}
+                      <div className="review-card-top">
+                        <div className="review-author">
+                          <div className="review-avatar">
+                            {image ? (
+                              <img
+                                src={image}
+                                alt={item.name}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
 
-                    const image =
-                      getImageUrl(
-                        item.profileImage
-                      );
+                                  const fallback =
+                                    e.currentTarget.nextElementSibling;
 
-                    const firstLetter =
-                      item.name
-                        ?.charAt(0)
-                        ?.toUpperCase() ||
-                      "U";
-
-                    return (
-
-                      <article
-                        className={
-                          item.isBackend
-                            ? "review-card backend-review-card"
-                            : "review-card"
-                        }
-                        key={
-                          item._id ||
-                          index
-                        }
-                      >
-
-                        {/* USER */}
-
-                        <div className="review-card-top">
-
-                          <div className="review-author">
-
-                            <div className="review-avatar">
-
-                              {image ? (
-
-                                <img
-                                  src={image}
-                                  alt={
-                                    item.name
+                                  if (fallback) {
+                                    fallback.style.display = "flex";
                                   }
-                                  onError={(e) => {
-                                    e.currentTarget.style.display =
-                                      "none";
-                                  }}
-                                />
+                                }}
+                              />
+                            ) : null}
 
-                              ) : (
-
-                                <span>
-                                  {firstLetter}
-                                </span>
-
-                              )}
-
-                            </div>
-
-                            <div>
-
-                              <h4>
-                                {item.name}
-                              </h4>
-
-                              {item.isBackend ? (
-
-                                <span className="real-review-label">
-                                  ✓ Real Customer
-                                </span>
-
-                              ) : (
-
-                                <span>
-                                  Customer
-                                </span>
-
-                              )}
-
-                            </div>
-
+                            <span
+                              style={{
+                                display: image ? "none" : "flex",
+                              }}
+                            >
+                              {firstLetter}
+                            </span>
                           </div>
 
-                          <div className="review-date">
-                            {formatDate(
-                              item.createdAt
+                          <div>
+                            <h4>{item.name}</h4>
+
+                            {item.isBackend ? (
+                              <span className="real-review-label">
+                                ✓ Customer Review
+                              </span>
+                            ) : (
+                              <span>Sample Review</span>
                             )}
                           </div>
-
                         </div>
 
-                        {/* STARS */}
-
-                        <div className="review-rating-row">
-
-                          {renderStars(
-                            item.rating
-                          )}
-
-                          <span>
-                            {item.rating}.0
-                          </span>
-
+                        <div className="review-date">
+                          {formatDate(item.createdAt)}
                         </div>
+                      </div>
 
-                        {/* QUOTE */}
+                      {/* STARS */}
+                      <div className="review-rating-row">
+                        {renderStars(item.rating)}
 
-                        <div className="review-quote">
-                          “
-                        </div>
+                        <span>
+                          {Number(item.rating).toFixed(1)}
+                        </span>
+                      </div>
 
-                        {/* REVIEW */}
+                      {/* QUOTE */}
+                      <div className="review-quote">“</div>
 
-                        <p className="review-text">
-                          {item.review}
-                        </p>
+                      {/* REVIEW */}
+                      <p className="review-text">{item.review}</p>
 
-                        {/* BOTTOM */}
+                      {/* BOTTOM */}
+                      <div className="review-card-bottom">
+                        <span>
+                          {item.isBackend
+                            ? "✓ Customer Feedback"
+                            : "Sample Feedback"}
+                        </span>
 
-                        <div className="review-card-bottom">
-
-                          <span>
-                            ✓ Verified Customer
-                          </span>
-
-                          <span>
-                            Dry Cleaning
-                          </span>
-
-                        </div>
-
-                      </article>
-
-                    );
-                  }
-                )}
-
+                        <span>Dry Cleaning</span>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
-
             </div>
 
-            {/* NEXT */}
-
             <button
+              type="button"
               className="review-arrow review-next"
               onClick={nextSlide}
               disabled={totalPages <= 1}
@@ -1313,66 +1130,41 @@ function Riviews() {
             >
               ›
             </button>
-
           </div>
-
         )}
 
         {/* DOTS */}
-
-        <div className="review-dots">
-
-          {Array.from({
-            length: totalPages,
-          }).map((_, index) => (
-
-            <button
-              key={index}
-              className={
-                currentPage === index
-                  ? "review-dot active"
-                  : "review-dot"
-              }
-              onClick={() =>
-                setCurrentPage(index)
-              }
-              aria-label={`Go to review slide ${
-                index + 1
-              }`}
-            />
-
-          ))}
-
-        </div>
+        {!loading && totalPages > 1 && (
+          <div className="review-dots">
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <button
+                type="button"
+                key={index}
+                className={
+                  currentPage === index
+                    ? "review-dot active"
+                    : "review-dot"
+                }
+                onClick={() => setCurrentPage(index)}
+                aria-label={`Go to review slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* BOTTOM */}
-
         <div className="reviews-bottom">
-
           <div className="reviews-bottom-line"></div>
 
           <div className="reviews-bottom-content">
-
-            <span className="bottom-star">
-              ★
-            </span>
-
-            <span>
-              Trusted for premium garment care
-            </span>
-
-            <span className="bottom-star">
-              ★
-            </span>
-
+            <span className="bottom-star">★</span>
+            <span>Trusted for premium garment care</span>
+            <span className="bottom-star">★</span>
           </div>
 
           <div className="reviews-bottom-line"></div>
-
         </div>
-
       </div>
-
     </section>
   );
 }
