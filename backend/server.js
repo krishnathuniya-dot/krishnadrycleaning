@@ -2,7 +2,7 @@
 const path = require("path");
 
 // =====================================================
-// LOAD ENVIRONMENT VARIABLES
+// 1. LOAD ENVIRONMENT VARIABLES FIRST
 // =====================================================
 
 require("dotenv").config({
@@ -10,15 +10,46 @@ require("dotenv").config({
 });
 
 // =====================================================
-// IMPORTS
+// 2. IMPORT CORE PACKAGES
 // =====================================================
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cloudinary = require("cloudinary").v2;
 
 // =====================================================
-// ROUTES
+// 3. CONFIGURE CLOUDINARY BEFORE IMPORTING ROUTES
+// =====================================================
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Safe check: never print actual API credentials
+console.log("Cloudinary environment check:", {
+  cloud_name: Boolean(process.env.CLOUDINARY_CLOUD_NAME),
+  api_key: Boolean(process.env.CLOUDINARY_API_KEY),
+  api_secret: Boolean(process.env.CLOUDINARY_API_SECRET),
+});
+
+// =====================================================
+// 4. OTHER ENVIRONMENT CHECKS
+// =====================================================
+
+console.log("JWT LOADED =", Boolean(process.env.JWT_SECRET_KEY));
+console.log("MONGO URI LOADED =", Boolean(process.env.MONGO_URI));
+console.log("SMTP USER LOADED =", Boolean(process.env.SMTP_USER));
+console.log("SMTP PASS LOADED =", Boolean(process.env.SMTP_PASS));
+console.log(
+  "GOOGLE CLIENT ID LOADED =",
+  Boolean(process.env.GOOGLE_CLIENT_ID)
+);
+
+// =====================================================
+// 5. IMPORT ROUTES AFTER CONFIGURATION
 // =====================================================
 
 const authRoutes = require("./routes/authRoutes");
@@ -31,43 +62,13 @@ const rateListRoutes = require("./routes/rateListRoutes");
 const shopRoutes = require("./routes/shopRoutes");
 
 // =====================================================
-// CLOUDINARY CONFIGURATION
-// =====================================================
-
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// =====================================================
-// CHECK ENVIRONMENT VARIABLES
-// =====================================================
-
-console.log("JWT LOADED =", !!process.env.JWT_SECRET_KEY);
-console.log("MONGO URI LOADED =", !!process.env.MONGO_URI);
-console.log("SMTP USER LOADED =", !!process.env.SMTP_USER);
-console.log("SMTP PASS LOADED =", !!process.env.SMTP_PASS);
-console.log("GOOGLE CLIENT ID LOADED =", !!process.env.GOOGLE_CLIENT_ID);
-console.log(
-  "CLOUDINARY CONFIG LOADED =",
-  !!(
-    process.env.CLOUDINARY_CLOUD_NAME &&
-    process.env.CLOUDINARY_API_KEY &&
-    process.env.CLOUDINARY_API_SECRET
-  )
-);
-
-// =====================================================
-// APP
+// 6. INITIALIZE EXPRESS
 // =====================================================
 
 const app = express();
 
 // =====================================================
-// MIDDLEWARE
+// 7. MIDDLEWARE
 // =====================================================
 
 app.use(cors());
@@ -81,7 +82,7 @@ app.use(
 );
 
 // =====================================================
-// OLD UPLOADS SUPPORT
+// 8. OLD UPLOADS SUPPORT
 // Existing local images continue to work
 // =====================================================
 
@@ -91,7 +92,7 @@ app.use(
 );
 
 // =====================================================
-// API ROUTES
+// 9. API ROUTES
 // =====================================================
 
 app.use("/api", authRoutes);
@@ -104,7 +105,7 @@ app.use("/api", rateListRoutes);
 app.use("/api/shop", shopRoutes);
 
 // =====================================================
-// HOME / HEALTH CHECK
+// 10. HOME / HEALTH CHECK
 // =====================================================
 
 app.get("/", (req, res) => {
@@ -120,7 +121,7 @@ app.get("/", (req, res) => {
 });
 
 // =====================================================
-// GLOBAL ERROR HANDLER
+// 11. GLOBAL ERROR HANDLER
 // =====================================================
 
 app.use((err, req, res, next) => {
@@ -140,11 +141,11 @@ app.use((err, req, res, next) => {
 });
 
 // =====================================================
-// MONGODB CONNECTION
+// 12. MONGODB CONNECTION
 // =====================================================
 
 if (!process.env.MONGO_URI) {
-  console.error("MONGO_URI missing in backend/.env");
+  console.error("MONGO_URI missing in environment variables");
 } else {
   mongoose
     .connect(process.env.MONGO_URI)
@@ -157,7 +158,7 @@ if (!process.env.MONGO_URI) {
 }
 
 // =====================================================
-// SERVER
+// 13. START SERVER
 // =====================================================
 
 const PORT = process.env.PORT || 2340;

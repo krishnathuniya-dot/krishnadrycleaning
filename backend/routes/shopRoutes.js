@@ -1,9 +1,7 @@
 
 const express = require("express");
 const router = express.Router();
-
 const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
 
 const adminAuth = require("../middleware/adminAuthMiddleware");
 
@@ -15,17 +13,17 @@ const {
   deleteShopVideo,
 } = require("../controller/shopController");
 
-// Cloudinary configuration
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// =====================================================
+// MULTER MEMORY STORAGE
+// Required because the controller uploads file.buffer.
+// =====================================================
 
-// Memory storage: file local uploads folder mein save nahi hogi
 const storage = multer.memoryStorage();
 
-// File validation
+// =====================================================
+// FILE TYPE VALIDATION
+// =====================================================
+
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === "video") {
     const allowedVideos = [
@@ -40,7 +38,7 @@ const fileFilter = (req, file, cb) => {
     }
 
     return cb(
-      new Error("Only MP4, WEBM, MOV or AVI videos allowed")
+      new Error("Only MP4, WEBM, MOV or AVI videos are allowed.")
     );
   }
 
@@ -56,73 +54,78 @@ const fileFilter = (req, file, cb) => {
     }
 
     return cb(
-      new Error("Only JPG, JPEG, PNG or WEBP images allowed")
+      new Error("Only JPG, PNG and WEBP images are allowed.")
     );
   }
 
-  return cb(new Error("Unsupported file field"));
+  return cb(new Error("Unsupported file field."));
 };
+
+// =====================================================
+// MULTER CONFIGURATION
+// =====================================================
 
 const upload = multer({
   storage,
   fileFilter,
   limits: {
     fileSize: 100 * 1024 * 1024,
-    files: 11,
+    files: 7,
   },
 });
 
-// Upload a file buffer directly to Cloudinary
-const uploadToCloudinary = (file, resourceType) => {
-  return new Promise((resolve, reject) => {
-    if (!file || !file.buffer) {
-      return reject(new Error("File buffer is missing"));
-    }
+// =====================================================
+// PUBLIC ROUTE
+// =====================================================
 
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "krishna-dry-cleaning/shop",
-        resource_type: resourceType,
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-
-    stream.end(file.buffer);
-  });
-};
-
-// Export helper for the controller
-router.uploadToCloudinary = uploadToCloudinary;
-router.cloudinary = cloudinary;
-
-// Public routes
 router.get("/", getShop);
 
-// Admin routes
+// =====================================================
+// ADMIN ROUTES
+// =====================================================
+
+// Get shop details
 router.get("/admin", adminAuth, getAdminShop);
 
+// Update shop and upload images/video
 router.put(
   "/admin",
   adminAuth,
   upload.fields([
     { name: "video", maxCount: 1 },
-    { name: "images", maxCount: 10 },
+    { name: "images", maxCount: 6 },
   ]),
   updateShop
 );
 
-router.delete("/admin/image", adminAuth, deleteShopImage);
-router.delete("/admin/video", adminAuth, deleteShopVideo);
+// Delete a shop image
+router.delete(
+  "/admin/image",
+  adminAuth,
+  deleteShopImage
+);
 
-// Multer and upload errors
+// Delete shop video
+router.delete(
+  "/admin/video",
+  adminAuth,
+  deleteShopVideo
+);
+
+// =====================================================
+// MULTER AND FILE VALIDATION ERROR HANDLER
+// =====================================================
+
 router.use((error, req, res, next) => {
+  if (res.headersSent) {
+    return next(error);
+  }
+
   if (error instanceof multer.MulterError) {
     return res.status(400).json({
       success: false,
-      message: error.message,
+      message: "File upload validation failed.",
+      error: error.message,
     });
   }
 
@@ -131,7 +134,8 @@ router.use((error, req, res, next) => {
 
     return res.status(400).json({
       success: false,
-      message: error.message,
+      message: "Unable to process the uploaded file.",
+      error: error.message,
     });
   }
 

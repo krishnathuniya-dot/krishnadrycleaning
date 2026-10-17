@@ -4,71 +4,105 @@ import "../css/ShopManagement.css";
 
 const API_URL = "https://krishnadrycleaning.onrender.com";
 const MAX_IMAGES = 6;
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+
+const DEFAULT_HOURS = "09:00 AM - 09:00 PM";
+
+const EMPTY_FORM = {
+  shopName: "",
+  tagline: "",
+  description: "",
+  phone: "",
+  email: "",
+  address: "",
+  city: "",
+  latitude: "",
+  longitude: "",
+  services: "",
+  monday: "",
+  tuesday: "",
+  wednesday: "",
+  thursday: "",
+  friday: "",
+  saturday: "",
+  sunday: "",
+};
+
+const readResponse = async (response) => {
+  const text = await response.text();
+
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    console.error("Invalid backend response:", text);
+
+    return {
+      success: false,
+      message: `Server returned an invalid response (HTTP ${response.status}). Check backend logs.`,
+    };
+  }
+};
 
 const ShopManagement = () => {
   const [shop, setShop] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingImage, setDeletingImage] = useState("");
+  const [deletingVideo, setDeletingVideo] = useState(false);
   const [video, setVideo] = useState(null);
   const [images, setImages] = useState([]);
+  const [form, setForm] = useState(EMPTY_FORM);
 
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
-  const [form, setForm] = useState({
-    shopName: "",
-    tagline: "",
-    description: "",
-    phone: "",
-    email: "",
-    address: "",
-    city: "",
-    latitude: "",
-    longitude: "",
-    services: "",
-    monday: "",
-    tuesday: "",
-    wednesday: "",
-    thursday: "",
-    friday: "",
-    saturday: "",
-    sunday: "",
-  });
+  const getToken = () => localStorage.getItem("adminToken");
 
-  // Cloudinary URLs ko directly use karega.
-  // Purane local upload paths ko backend URL ke saath jodega.
+  const authHeaders = () => {
+    const token = getToken();
+
+    return token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+  };
+
   const getMediaUrl = (url) => {
     if (!url || typeof url !== "string") return "";
 
-    if (/^https?:\/\//i.test(url)) {
-      return url;
-    }
+    if (/^https?:\/\//i.test(url)) return url;
 
     return `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
   };
 
-  const getToken = () => localStorage.getItem("adminToken");
+  const handleApiError = (data, fallback) => {
+    const message = data?.error
+      ? `${data.message || fallback}: ${data.error}`
+      : data?.message || fallback;
 
-  const authHeaders = () => ({
-    Authorization: `Bearer ${getToken()}`,
-  });
-
-  useEffect(() => {
-    loadShop();
-  }, []);
+    console.error("Shop API error:", data);
+    alert(message);
+  };
 
   const loadShop = async () => {
     try {
       setLoading(true);
 
+      const token = getToken();
+
+      if (!token) {
+        alert("Admin login required. Please log in again.");
+        return;
+      }
+
       const response = await fetch(`${API_URL}/api/shop/admin`, {
+        method: "GET",
         headers: authHeaders(),
       });
 
-      const data = await response.json();
+      const data = await readResponse(response);
 
-      if (!response.ok || !data.success) {
-        alert(data.message || "Unable to load shop");
+      if (!response.ok || !data.success || !data.shop) {
+        handleApiError(data, "Unable to load shop information");
         return;
       }
 
@@ -89,21 +123,27 @@ const ShopManagement = () => {
         services: Array.isArray(s.services)
           ? s.services.join(", ")
           : s.services || "",
-        monday: s.openingHours?.monday || "",
-        tuesday: s.openingHours?.tuesday || "",
-        wednesday: s.openingHours?.wednesday || "",
-        thursday: s.openingHours?.thursday || "",
-        friday: s.openingHours?.friday || "",
-        saturday: s.openingHours?.saturday || "",
-        sunday: s.openingHours?.sunday || "",
+        monday: s.openingHours?.monday || DEFAULT_HOURS,
+        tuesday: s.openingHours?.tuesday || DEFAULT_HOURS,
+        wednesday: s.openingHours?.wednesday || DEFAULT_HOURS,
+        thursday: s.openingHours?.thursday || DEFAULT_HOURS,
+        friday: s.openingHours?.friday || DEFAULT_HOURS,
+        saturday: s.openingHours?.saturday || DEFAULT_HOURS,
+        sunday: s.openingHours?.sunday || DEFAULT_HOURS,
       });
     } catch (error) {
       console.error("Load shop error:", error);
-      alert("Unable to load shop information");
+      alert("Unable to connect to the backend. Check your connection and Render service.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadShop();
+    // Load shop once when this page mounts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,20 +154,23 @@ const ShopManagement = () => {
     }));
   };
 
-  // VIDEO SELECTION
   const handleVideoChange = (e) => {
     const selected = e.target.files?.[0];
 
     if (!selected) return;
 
-    if (!selected.type.startsWith("video/")) {
-      alert("Please select a valid video file.");
+    if (
+      !["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"].includes(
+        selected.type
+      )
+    ) {
+      alert("Only MP4, WEBM, MOV or AVI videos are allowed.");
       e.target.value = "";
       return;
     }
 
-    if (selected.size > 100 * 1024 * 1024) {
-      alert("Video size must be less than 100MB.");
+    if (selected.size > MAX_VIDEO_SIZE) {
+      alert("Video size must not exceed 100MB.");
       e.target.value = "";
       return;
     }
@@ -135,7 +178,6 @@ const ShopManagement = () => {
     setVideo(selected);
   };
 
-  // IMAGE SELECTION - MAXIMUM 6
   const handleImagesChange = (e) => {
     const selectedFiles = Array.from(e.target.files || []);
 
@@ -161,37 +203,56 @@ const ShopManagement = () => {
     const limitedFiles = validFiles.slice(0, remainingSlots);
 
     if (validFiles.length > remainingSlots) {
-      alert(
-        `You can upload only ${remainingSlots} more image(s). Maximum ${MAX_IMAGES} images are allowed.`
-      );
+      alert(`You can select only ${remainingSlots} more image(s).`);
     }
 
     setImages(limitedFiles);
   };
 
-  // SAVE SHOP INFORMATION AND MEDIA
   const handleSave = async (e) => {
     e.preventDefault();
+
+    if (saving) return;
 
     if (!getToken()) {
       alert("Admin login required. Please log in again.");
       return;
     }
 
+    const existingImages = shop?.images?.length || 0;
+
+    if (existingImages + images.length > MAX_IMAGES) {
+      alert(`Maximum ${MAX_IMAGES} shop images are allowed.`);
+      return;
+    }
+
+    if (
+      form.latitude !== "" &&
+      (!Number.isFinite(Number(form.latitude)) ||
+        Number(form.latitude) < -90 ||
+        Number(form.latitude) > 90)
+    ) {
+      alert("Latitude must be between -90 and 90.");
+      return;
+    }
+
+    if (
+      form.longitude !== "" &&
+      (!Number.isFinite(Number(form.longitude)) ||
+        Number(form.longitude) < -180 ||
+        Number(form.longitude) > 180)
+    ) {
+      alert("Longitude must be between -180 and 180.");
+      return;
+    }
+
     try {
       setSaving(true);
-
-      const existingImages = shop?.images?.length || 0;
-
-      if (existingImages + images.length > MAX_IMAGES) {
-        alert(`Maximum ${MAX_IMAGES} shop images are allowed.`);
-        return;
-      }
 
       const formData = new FormData();
 
       Object.entries(form).forEach(([key, value]) => {
-        formData.append(key, value);
+        formData.append(key, String(value ?? ""));
       });
 
       if (video) {
@@ -208,10 +269,10 @@ const ShopManagement = () => {
         body: formData,
       });
 
-      const data = await response.json();
+      const data = await readResponse(response);
 
-      if (!response.ok || !data.success) {
-        alert(data.message || "Unable to save changes");
+      if (!response.ok || !data.success || !data.shop) {
+        handleApiError(data, "Unable to save shop changes");
         return;
       }
 
@@ -228,22 +289,29 @@ const ShopManagement = () => {
       }
 
       alert("Shop updated successfully!");
-      await loadShop();
     } catch (error) {
       console.error("Save shop error:", error);
-      alert("Something went wrong while saving.");
+      alert("Could not connect to the backend. Please try again.");
     } finally {
       setSaving(false);
     }
   };
 
-  // DELETE IMAGE
   const deleteImage = async (image) => {
+    if (deletingImage) return;
+
+    if (!getToken()) {
+      alert("Admin login required. Please log in again.");
+      return;
+    }
+
     if (!window.confirm("Are you sure you want to delete this shop image?")) {
       return;
     }
 
     try {
+      setDeletingImage(image);
+
       const response = await fetch(`${API_URL}/api/shop/admin/image`, {
         method: "DELETE",
         headers: {
@@ -253,24 +321,35 @@ const ShopManagement = () => {
         body: JSON.stringify({ image }),
       });
 
-      const data = await response.json();
+      const data = await readResponse(response);
 
       if (!response.ok || !data.success) {
-        alert(data.message || "Failed to delete image");
+        handleApiError(data, "Failed to delete image");
         return;
       }
 
       setShop((prev) =>
-        prev ? { ...prev, images: data.images } : prev
+        prev ? { ...prev, images: data.images || [] } : prev
       );
+
+      setImages([]);
+      if (imageInputRef.current) imageInputRef.current.value = "";
     } catch (error) {
       console.error("Delete image error:", error);
-      alert("Failed to delete image.");
+      alert("Could not connect to the backend while deleting the image.");
+    } finally {
+      setDeletingImage("");
     }
   };
 
-  // DELETE VIDEO
   const deleteVideo = async () => {
+    if (deletingVideo) return;
+
+    if (!getToken()) {
+      alert("Admin login required. Please log in again.");
+      return;
+    }
+
     if (
       !window.confirm(
         "Are you sure you want to delete the current promotional video?"
@@ -280,22 +359,29 @@ const ShopManagement = () => {
     }
 
     try {
+      setDeletingVideo(true);
+
       const response = await fetch(`${API_URL}/api/shop/admin/video`, {
         method: "DELETE",
         headers: authHeaders(),
       });
 
-      const data = await response.json();
+      const data = await readResponse(response);
 
       if (!response.ok || !data.success) {
-        alert(data.message || "Failed to delete video");
+        handleApiError(data, "Failed to delete video");
         return;
       }
 
       setShop((prev) => (prev ? { ...prev, video: "" } : prev));
+      setVideo(null);
+
+      if (videoInputRef.current) videoInputRef.current.value = "";
     } catch (error) {
       console.error("Delete video error:", error);
-      alert("Failed to delete video.");
+      alert("Could not connect to the backend while deleting the video.");
+    } finally {
+      setDeletingVideo(false);
     }
   };
 
@@ -341,78 +427,47 @@ const ShopManagement = () => {
       </div>
 
       <form className="shop-admin-form" onSubmit={handleSave}>
-        {/* STORE INFORMATION */}
         <section className="admin-section">
           <div className="admin-section-header">
             <div className="section-number">01</div>
             <div className="section-heading-text">
               <span>STORE PROFILE</span>
               <h2>Store Information</h2>
-              <p>Keep your public business information accurate and professional.</p>
+              <p>
+                Keep your public business information accurate and professional.
+              </p>
             </div>
           </div>
 
           <div className="admin-grid">
             <div className="admin-field admin-field-full">
               <label>Shop Name</label>
-              <input
-                name="shopName"
-                value={form.shopName}
-                onChange={handleChange}
-                placeholder="KRISHNA DRY CLEANING"
-              />
+              <input name="shopName" value={form.shopName} onChange={handleChange} placeholder="KRISHNA DRY CLEANING" />
             </div>
 
             <div className="admin-field">
               <label>Tagline</label>
-              <input
-                name="tagline"
-                value={form.tagline}
-                onChange={handleChange}
-                placeholder="Premium Care for Your Clothes"
-              />
+              <input name="tagline" value={form.tagline} onChange={handleChange} placeholder="Premium Care for Your Clothes" />
             </div>
 
             <div className="admin-field">
               <label>Phone Number</label>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                placeholder="+91 98765 43210"
-              />
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 98765 43210" />
             </div>
 
             <div className="admin-field">
               <label>Email Address</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="shop@example.com"
-              />
+              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="shop@example.com" />
             </div>
 
             <div className="admin-field">
               <label>City</label>
-              <input
-                name="city"
-                value={form.city}
-                onChange={handleChange}
-                placeholder="Delhi"
-              />
+              <input name="city" value={form.city} onChange={handleChange} placeholder="Delhi" />
             </div>
 
             <div className="admin-field admin-field-full">
               <label>Business Description</label>
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                rows="5"
-                placeholder="Write a professional description about your store..."
-              />
+              <textarea name="description" value={form.description} onChange={handleChange} rows="5" placeholder="Write a professional description about your store..." />
               <div className="field-helper">
                 This description will appear on your public store page.
               </div>
@@ -420,7 +475,6 @@ const ShopManagement = () => {
           </div>
         </section>
 
-        {/* LOCATION */}
         <section className="admin-section">
           <div className="admin-section-header">
             <div className="section-number">02</div>
@@ -442,13 +496,7 @@ const ShopManagement = () => {
           <div className="admin-grid">
             <div className="admin-field admin-field-full">
               <label>Complete Address</label>
-              <textarea
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                rows="3"
-                placeholder="Gali No 19, Rajapuri, Uttam Nagar, Delhi"
-              />
+              <textarea name="address" value={form.address} onChange={handleChange} rows="3" placeholder="Gali No 19, Rajapuri, Uttam Nagar, Delhi" />
             </div>
 
             <div className="admin-field">
@@ -458,47 +506,27 @@ const ShopManagement = () => {
 
             <div className="admin-field">
               <label>Latitude</label>
-              <input
-                name="latitude"
-                value={form.latitude}
-                onChange={handleChange}
-                placeholder="28.6063112"
-              />
+              <input name="latitude" type="number" step="any" value={form.latitude} onChange={handleChange} placeholder="28.6063112" />
             </div>
 
             <div className="admin-field">
               <label>Longitude</label>
-              <input
-                name="longitude"
-                value={form.longitude}
-                onChange={handleChange}
-                placeholder="77.0589786"
-              />
+              <input name="longitude" type="number" step="any" value={form.longitude} onChange={handleChange} placeholder="77.0589786" />
             </div>
 
             <div className="admin-field admin-field-full">
               <label>Services</label>
-              <input
-                name="services"
-                value={form.services}
-                onChange={handleChange}
-                placeholder="Dry Cleaning, Charak, Steam Press, Rafu"
-              />
+              <input name="services" value={form.services} onChange={handleChange} placeholder="Dry Cleaning, Charak, Steam Press, Rafu" />
 
               <div className="service-preview">
-                {form.services
-                  .split(",")
-                  .map((item) => item.trim())
-                  .filter(Boolean)
-                  .map((service, index) => (
-                    <span key={index}>{service}</span>
-                  ))}
+                {form.services.split(",").map((item) => item.trim()).filter(Boolean).map((service, index) => (
+                  <span key={`${service}-${index}`}>{service}</span>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* PROMOTIONAL VIDEO */}
         <section className="admin-section">
           <div className="admin-section-header">
             <div className="section-number">03</div>
@@ -512,11 +540,7 @@ const ShopManagement = () => {
           {shop?.video ? (
             <div className="current-video-card">
               <div className="video-preview">
-                <video
-                  src={getMediaUrl(shop.video)}
-                  controls
-                  playsInline
-                />
+                <video src={getMediaUrl(shop.video)} controls playsInline />
                 <div className="video-live-badge">CURRENT VIDEO</div>
               </div>
 
@@ -526,12 +550,8 @@ const ShopManagement = () => {
                   <span>Currently published on your store page</span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={deleteVideo}
-                  className="danger-button"
-                >
-                  Delete Video
+                <button type="button" onClick={deleteVideo} disabled={deletingVideo} className="danger-button">
+                  {deletingVideo ? "Deleting..." : "Delete Video"}
                 </button>
               </div>
             </div>
@@ -545,14 +565,11 @@ const ShopManagement = () => {
             </div>
           )}
 
-          <div
-            className="upload-dropzone video-dropzone"
-            onClick={() => videoInputRef.current?.click()}
-          >
+          <div className="upload-dropzone video-dropzone" onClick={() => videoInputRef.current?.click()}>
             <input
               ref={videoInputRef}
               type="file"
-              accept="video/mp4,video/webm,video/quicktime"
+              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
               onChange={handleVideoChange}
               onClick={(e) => e.stopPropagation()}
             />
@@ -561,12 +578,11 @@ const ShopManagement = () => {
             <div className="upload-content">
               <strong>{video ? video.name : "Upload Advertisement Video"}</strong>
               <span>Click to choose your video</span>
-              <small>MP4, WEBM or MOV · Maximum 100MB</small>
+              <small>MP4, WEBM, MOV or AVI · Maximum 100MB</small>
             </div>
           </div>
         </section>
 
-        {/* SHOP GALLERY */}
         <section className="admin-section">
           <div className="admin-section-header gallery-header">
             <div className="section-number">04</div>
@@ -587,11 +603,7 @@ const ShopManagement = () => {
             <div className="admin-image-grid">
               {shop.images.map((image, index) => (
                 <div className="admin-image-card" key={image}>
-                  <img
-                    src={getMediaUrl(image)}
-                    alt={`Shop ${index + 1}`}
-                    loading="lazy"
-                  />
+                  <img src={getMediaUrl(image)} alt={`Shop ${index + 1}`} loading="lazy" />
 
                   <div className="image-number">
                     {String(index + 1).padStart(2, "0")}
@@ -600,10 +612,11 @@ const ShopManagement = () => {
                   <button
                     type="button"
                     className="image-delete"
+                    disabled={Boolean(deletingImage)}
                     onClick={() => deleteImage(image)}
                     aria-label="Delete image"
                   >
-                    ×
+                    {deletingImage === image ? "…" : "×"}
                   </button>
 
                   <div className="image-overlay">
@@ -616,17 +629,12 @@ const ShopManagement = () => {
             <div className="empty-gallery">
               <div>◎</div>
               <strong>No shop photos yet</strong>
-              <span>
-                Add real store photographs to make your public page look professional.
-              </span>
+              <span>Add real store photographs to make your public page look professional.</span>
             </div>
           )}
 
           {remainingImages > 0 ? (
-            <div
-              className="upload-dropzone image-dropzone"
-              onClick={() => imageInputRef.current?.click()}
-            >
+            <div className="upload-dropzone image-dropzone" onClick={() => imageInputRef.current?.click()}>
               <input
                 ref={imageInputRef}
                 type="file"
@@ -638,28 +646,19 @@ const ShopManagement = () => {
 
               <div className="upload-icon">+</div>
               <div className="upload-content">
-                <strong>
-                  {images.length > 0
-                    ? `${images.length} new image(s) selected`
-                    : "Add Shop Photos"}
-                </strong>
+                <strong>{images.length > 0 ? `${images.length} new image(s) selected` : "Add Shop Photos"}</strong>
                 <span>Click here to choose photographs</span>
-                <small>
-                  JPG, PNG or WEBP · {remainingImages} slot(s) remaining
-                </small>
+                <small>JPG, PNG or WEBP · {remainingImages} slot(s) remaining</small>
               </div>
             </div>
           ) : (
             <div className="gallery-limit">
               <div>✓</div>
-              <span>
-                You have reached the maximum of <strong>{MAX_IMAGES} photos</strong>.
-              </span>
+              <span>You have reached the maximum of <strong>{MAX_IMAGES} photos</strong>.</span>
             </div>
           )}
         </section>
 
-        {/* OPENING HOURS */}
         <section className="admin-section">
           <div className="admin-section-header">
             <div className="section-number">05</div>
@@ -684,19 +683,13 @@ const ShopManagement = () => {
                 <div className="day-badge">{short}</div>
                 <div className="hours-input">
                   <label>{label}</label>
-                  <input
-                    name={key}
-                    value={form[key]}
-                    onChange={handleChange}
-                    placeholder="09:00 AM - 09:00 PM"
-                  />
+                  <input name={key} value={form[key]} onChange={handleChange} placeholder={DEFAULT_HOURS} />
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* SAVE BAR */}
         <div className="admin-save-bar">
           <div className="save-info">
             <div className="save-check">✓</div>
@@ -706,11 +699,7 @@ const ShopManagement = () => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="save-shop-button"
-          >
+          <button type="submit" disabled={saving} className="save-shop-button">
             {saving ? (
               <>
                 <span className="button-spinner"></span>

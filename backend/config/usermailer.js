@@ -1,9 +1,9 @@
-const nodemailer = require("nodemailer");
+  const nodemailer = require("nodemailer");
 
 // =====================================================
 // CREATE TRANSPORTER
 // =====================================================
-
+  
 const transporter = nodemailer.createTransport({
   service: "gmail",
 
