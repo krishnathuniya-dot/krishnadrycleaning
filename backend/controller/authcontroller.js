@@ -18,10 +18,12 @@ const {
 // SIGNUP
 // =====================================================
 
+
 const signup = async (req, res) => {
   try {
     const { fullName, mobile, email, password } = req.body;
 
+    // VALIDATION
     if (!fullName || !mobile || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -45,6 +47,7 @@ const signup = async (req, res) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
+    // CHECK EXISTING USER
     const existingUser = await User.findOne({
       email: cleanEmail,
     });
@@ -56,8 +59,10 @@ const signup = async (req, res) => {
       });
     }
 
+    // HASH PASSWORD
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // CREATE USER
     const user = await User.create({
       fullName: fullName.trim(),
       mobile,
@@ -65,38 +70,6 @@ const signup = async (req, res) => {
       password: hashedPassword,
       provider: "local",
     });
-
-    // SEND WELCOME EMAIL
-    try {
-      if (user.emailNotifications !== false) {
-        await sendWelcomeEmail({
-          email: user.email,
-          name: user.fullName,
-        });
-      }
-    } catch (mailError) {
-      console.log("Welcome Email Error:", mailError);
-    }
-
-    // NOTIFY ALL ADMINS
-    try {
-      await notifyAllAdmins({
-        sender: user._id,
-        type: "user_registered",
-        title: "New User Registered",
-        message: `${user.fullName} has created a new account.`,
-        link: "/admin/users",
-        data: {
-          userId: user._id,
-          fullName: user.fullName,
-          email: user.email,
-          mobile: user.mobile,
-          registeredAt: new Date(),
-        },
-      });
-    } catch (notifyError) {
-      console.log("Notify Admin Error:", notifyError);
-    }
 
     // CREATE TOKEN
     const token = jwt.sign(
@@ -110,7 +83,8 @@ const signup = async (req, res) => {
       }
     );
 
-    return res.status(201).json({
+    // SEND RESPONSE IMMEDIATELY
+    res.status(201).json({
       success: true,
       message: "Signup successful",
       token,
@@ -124,8 +98,60 @@ const signup = async (req, res) => {
         lastLogin: user.lastLogin || null,
       },
     });
+
+    // ==========================================
+    // BACKGROUND WELCOME EMAIL
+    // EMAIL WILL STILL BE SENT
+    // ==========================================
+
+    Promise.resolve()
+      .then(async () => {
+        if (user.emailNotifications !== false) {
+          await sendWelcomeEmail({
+            email: user.email,
+            name: user.fullName,
+          });
+        }
+      })
+      .catch((mailError) => {
+        console.log("Welcome Email Error:", mailError);
+      });
+
+    // ==========================================
+    // BACKGROUND ADMIN NOTIFICATION
+    // NOTIFICATION WILL STILL BE SENT
+    // ==========================================
+
+    Promise.resolve()
+      .then(async () => {
+        await notifyAllAdmins({
+          sender: user._id,
+          type: "user_registered",
+          title: "New User Registered",
+          message: `${user.fullName} has created a new account.`,
+          link: "/admin/users",
+          data: {
+            userId: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            mobile: user.mobile,
+            registeredAt: new Date(),
+          },
+        });
+      })
+      .catch((notifyError) => {
+        console.log("Notify Admin Error:", notifyError);
+      });
+
   } catch (error) {
     console.log("Signup Error:", error);
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "Email already registered",
+      });
+    }
 
     return res.status(500).json({
       success: false,

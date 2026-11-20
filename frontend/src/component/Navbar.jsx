@@ -1163,7 +1163,7 @@ function Navbar() {
 
               {!isLoginView && (
                 <div className="auth-terms">
-                  By creating an account, you agree to our
+                  By creating an account, you agree to our  
                   <span> Terms &amp; Conditions </span>
                   and
                   <span> Privacy Policy</span>.
